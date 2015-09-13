@@ -24,6 +24,6 @@
 
 
 
-(filter #(if (.isDirectory %) (.getPath %) nil) (file-seq (File. "/Users/gregadebesin/Development/Cetl")))
+(map #(.getPath %) (filter #(if (.isDirectory %) (.getPath %)) (file-seq (File. "/Users/gregadebesin/Development/Cetl"))))
 
-; find . `pwd` -maxdepth 1 -not -type d
+; find . `pwd` -maxdepth 1 -not -type dl

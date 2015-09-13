@@ -16,36 +16,64 @@
 ;1. List files in directory
 ;2. Put each path onto a channel
 ;3. Pass each path to any input component
-
-;TODO implement include-sub-dirs? implement dirs only recursive and files only recursive
+;TODO implement include-hidden-files? for files only
+;TODO move zip command and gzip command into parent func
 
 (defn cetl-file-list
   [path & {:keys
-           [dirs-only? files-only? dirs-&-files?
+           [dirs-only? files-only? files-only? dirs-&-files?
             include-sub-dirs?]}]
   (letfn
     [(dirs-&-files
        [p]
        (clojure.string/split
-         (get (clojure.java.shell/sh "sh" "-c"
+         (get (clojure.java.shell/sh
+                "sh" "-c"
                 (str " cd " p ";" "  ls -d $PWD/*/ " ";" " ls -d -1 $PWD/*.* "))
               :out) #"\n"))
      (files-only
        [p]
        (clojure.string/split
-         (get (clojure.java.shell/sh "sh" "-c"
+         (get (clojure.java.shell/sh
+                "sh" "-c"
                 (str " cd " p ";" " ls -d -1 $PWD/*.* "))
               :out) #"\n"))
      (dirs-only
        [p]
        (clojure.string/split
-         (get (clojure.java.shell/sh "sh" "-c"
-                (str " cd " p ";" " ls -d -1 $PWD/*/ ")) :out) #"\n"))]
+         (get (clojure.java.shell/sh
+                "sh" "-c"
+                (str " cd " p ";" " ls -d -1 $PWD/*/ "))
+              :out) #"\n"))
+     (include-dirs-only-sub-dirs
+       [p]
+       (map #(str % "/")
+         (clojure.string/split
+           (get (clojure.java.shell/sh
+                  "sh" "-c"
+                  (str " cd " p ";" " find `pwd` -type d "))
+                :out) #"\n")))
+     (include-files-only-sub-dirs
+       [p]
+       (mapv #(.getPath %)
+            (filter #(if (.isFile %) (.getPath %))
+                    (file-seq (File. p)))))]
     (cond
-      (= dirs-&-files? true) (dirs-&-files path)
-      (= files-only? true) (files-only path)
-      (= dirs-only? true) (dirs-only path))))
-
+      (and (= dirs-&-files? true)
+           (= include-sub-dirs? false))
+      (dirs-&-files path)
+      (and (= files-only? true)
+           (= include-sub-dirs? false))
+      (files-only path)
+      (and (= dirs-only? true)
+           (= include-sub-dirs? false))
+      (dirs-only path)
+      (and (= dirs-only? true)
+           (= include-sub-dirs? true))
+      (include-dirs-only-sub-dirs path)
+      (and (= files-only? true)
+           (= include-sub-dirs? true))
+      (include-files-only-sub-dirs path))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
