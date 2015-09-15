@@ -1,9 +1,5 @@
 (ns cetl.file.management
-  (:require [clojure.core.async :refer [chan <!! >!! >! <! put! take! close!
-                                        sliding-buffer
-                                        dropping-buffer
-                                        thread go]]
-            [clojure.string :as s]
+  (:require [clojure.string :as s]
             [cetl.utils.component-utils :as c-utils])
   (:import (java.io File FileFilter)))
 
@@ -12,11 +8,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;1. List files in directory
-;2. Put each path onto a channel
-;3. Pass each path to any input component
-;TODO move zip command and gzip command into parent func
 (defn cetl-file-list
   [path & {:keys
            [dirs-only? files-only? dirs-&-files?
@@ -75,27 +66,23 @@
 ;find `pwd` -type f -not -path '*/\.*'
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn zip-command
-  [p]
-  (str " cd " (c-utils/parent-folder p) ";"
-       " zip " (c-utils/path-head p)".zip"
-       " -r " (c-utils/path-head p)))
-
-(defn gzip-command
-  [p]
-  (str " cd " (c-utils/parent-folder p) ";"
-       " tar -cvzf " (c-utils/path-head p)".tar.gz"
-       " " (c-utils/path-head p)))
-
 (defn cetl-file-archive
   [path & {:keys [archive-format]}]
   (letfn
     [(zip
        [p]
-       (clojure.java.shell/sh "sh" "-c" (zip-command p)))
+       (clojure.java.shell/sh
+         "sh" "-c"
+          (str " cd "  (.getParent (File. p)) "/;"
+               " zip " (last (s/split p #"/")) ".zip"
+               " -r "  (last (s/split p #"/")))))
      (gzip
        [p]
-       (clojure.java.shell/sh "sh" "-c" (gzip-command p)))]
+       (clojure.java.shell/sh
+         "sh" "-c"
+          (str " cd " (.getParent (File. p)) "/;"
+               " tar -cvzf " (last (s/split p #"/")) ".tar.gz"
+               " " (last (s/split p #"/")))))]
     (cond
       (= archive-format :zip) (zip path)
       (= archive-format :gzip) (gzip path))))
