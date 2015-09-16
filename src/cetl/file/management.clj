@@ -93,7 +93,3 @@
 
 #_(defn cetl-file-unarchive
   [path in out & {:keys []}])
-(if (= include-hidden-files? true)
-  (mapv #(.getPath %)
-        (filter #(if (.isFile %) (.getPath %))
-                (file-seq (File. p)))))
