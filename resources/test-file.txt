@@ -1,0 +1,1 @@
+I'd like to write a clojure function that takes a string in one encoding and converts it to another. The iconv library does this.
