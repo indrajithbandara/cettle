@@ -11,7 +11,7 @@
 (defn cetl-file-list
   [path & {:keys
            [dirs-only? files-only? dirs-&-files?
-            include-sub-dirs? include-hidden-files?]}]
+            include-sub-dirs?]}]
   (letfn
     [(dirs-&-files
        [p]
@@ -47,20 +47,16 @@
               :out) #"\n"))]
     (cond
       (and (= dirs-&-files? true)
-           (= include-sub-dirs? false)
-           (= include-hidden-files? false))
+           (= include-sub-dirs? false))
       (dirs-&-files path)
       (and (= files-only? true)
-           (= include-sub-dirs? false)
-           (= include-hidden-files? false))
+           (= include-sub-dirs? false))
       (files-only path)
       (and (= dirs-only? true)
-           (= include-sub-dirs? false)
-           (= include-hidden-files? false))
+           (= include-sub-dirs? false))
       (dirs-only path)
       (and (= dirs-only? true)
-           (= include-sub-dirs? true)
-           (= include-hidden-files? false))
+           (= include-sub-dirs? true))
       (include-dirs-only-sub-dirs path))))
 
 
@@ -108,9 +104,7 @@
           (encoding in-path out-path "ISO-8859-15" "UTF-8"))))
 
 
-
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 

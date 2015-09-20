@@ -1,6 +1,8 @@
 (ns cetl.file.input
   (:import (au.com.bytecode.opencsv CSVReader)))
 (use 'incanter.io)
+(use '(incanter core io charts)
+     '[clojure.set :only (union)])
 
 (defn cetl-input-file-delimited
   [filename & {:keys [delim keyword-headers quote skip header compress-delim empty-field-value]
@@ -50,3 +52,60 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;TODO Iimplement inner join given (cetl-input-file-delimited "/Users/gregadebesin/IdeaProjects/cetl/resources/sample-data.csv" :header true) which will allow save to work
+
+(defn data->maps "Turns a vector of vectors into a seq of maps"
+  [keys data]
+  (map #(zipmap keys %) data))
+
+(defn data-merge
+  "Merge two data sets on the given key"
+  [merge-key a b]
+  (let [indexed-b (zipmap (mapv merge-key b) b)]
+    (mapv #(into % (indexed-b (merge-key %))) (filter #(contains? indexed-b (merge-key %)) a))))
+
+(data-merge :policyID (cetl-input-file-delimited "/Users/gregadebesin/IdeaProjects/cetl/resources/sample-data.csv" :header true)
+                      (cetl-input-file-delimited "/Users/gregadebesin/IdeaProjects/cetl/resources/sample-data.csv" :header true))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def ^:dynamic **datasets**
+  {
+   :iris {:filename "/Users/gregadebesin/IdeaProjects/cetl/resources/rest2.csv"
+          :delim \x
+          :header true}})
+
+(defn get-dataset
+  ([dataset-key & {:keys [incanter-home]}]
+   (when-let [ds (**datasets** dataset-key)]
+     (let [filename  (str incanter-home "/" (ds :filename))
+           delim (ds :delim)
+           header (ds :header)]
+       (cetl-input-file-delimited filename :delim delim :header header)))))
+
+
+
+
+(defn dataset
+  "
+  Returns a map of type incanter.core.dataset constructed from the given column-names and
+  data. The data is either a sequence of sequences or a sequence of hash-maps.
+  "
+  ([column-names & data]
+   (let [dat (cond
+               (or (map? (ffirst data)) (coll? (ffirst data)))
+               (first data)
+               (map? (first data))
+               data
+               :else
+               (map vector (first data)))
+         rows (cond
+                (map? dat)
+                [dat]
+                (map? (first dat))
+                dat
+                :else
+                (map #(apply assoc {} (interleave column-names %)) dat))]
+     (Dataset. (into [] column-names) rows))))
