@@ -108,7 +108,47 @@
 
 
 
+(defmulti cetl-file-list (fn [x] (:list x)))
 
+(defmethod cetl-file-list :dirs-and-files?
+  []
+  )
+
+(defmethod cetl-file-list :files?
+  []
+  )
+
+(defmethod cetl-file-list :dirs?
+  []
+  )
+
+(defmethod cetl-file-list :dirs-only-sub-dirs?
+  []
+  )
+
+(defmethod cetl-file-list :files-only-sub-dirs?
+  []
+  )
+
+
+
+
+(defmulti full-moon-behavior (fn [were-creature] (:were-type were-creature)))
+
+(defmethod full-moon-behavior :wolf
+  [were-creature]
+  (+ 8 8))
+
+(defmethod full-moon-behavior :simmons
+  [were-creature]
+  (str (:name were-creature) " will encourage people and sweat to the oldies"))
+
+(full-moon-behavior {:were-type :wolf})
+; => "Rachel from next door will howl and murder"
+
+(full-moon-behavior {:name "Andy the baker"
+                     :were-type :simmons})
+; => "Andy the baker will encourage people an
 
 
 
