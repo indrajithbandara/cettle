@@ -9,21 +9,11 @@
     (is (= 0 1))))
 
 
-(cetl-file-archive  "/Users/gregadebesin/Development/Cetl/TestFiles"
-                    :archive-format :gzip)
-; Get file names
-(map #(.getName %)
-     (file-seq
-       (File. "/Users/gregadebesin/Development/Cetl")))
+;TODO test why "/Users/gregadebesin/Development/Cetl/TestFiles copy" a path with a space in name dosent work
 
-;Get full path names
-(filter
-  #(if (not (.isDirectory %)) (.getPath %))
-     (file-seq
-      (File. "/Users/gregadebesin/Development/Cetl")))
+(def list-files (cetl-file-list {:path "/Users/gregadebesin/Development/Cetl"
+                                 :list :dirs}))
 
-
-
-(map #(.getPath %) (filter #(if (.isDirectory %) (.getPath %)) (file-seq (File. "/Users/gregadebesin/Development/Cetl"))))
+(map (fn [x] (cetl-file-archive {:path x :archive :zip})) list-files)
 
 ; find . `pwd` -maxdepth 1 -not -type dl

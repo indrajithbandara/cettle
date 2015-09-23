@@ -77,11 +77,9 @@
 
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn cetl-change-file-encoding
+(defn cetl-change-file-encode
   [in-path out-path & {:keys [from-encode to-encode]}]
   (letfn [(encoding
             [in out x xs]
@@ -95,6 +93,24 @@
           (and (= from-encode :ISO-8859-15)
                (= to-encode :UTF-8))
           (encoding in-path out-path "ISO-8859-15" "UTF-8"))))
+
+;TODO test cetl-file-encode functions
+
+(defmulti cetl-file-encode (fn [x] (:encode x)))
+
+(defmethod cetl-file-encode :UTF-8
+  [x]
+  (FileUtils/write
+     (File. (:path x))
+     (FileUtils/readFileToString
+       (File. (:path x)) (name (:encode x))) "ISO-8859-15"))
+
+(defmethod cetl-file-encode :ISO-8859-15
+  [x]
+  (FileUtils/write
+    (File. (:path x))
+    (FileUtils/readFileToString
+      (File. (:path x)) (name (:encode x))) "UTF-8"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
