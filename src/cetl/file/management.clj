@@ -8,84 +8,77 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn cetl-file-list
-  [path & {:keys
-           [dirs-only? files-only? dirs-&-files?
-            include-sub-dirs?]}]
-  (letfn
-    [(dirs-&-files
-       [p]
-       (clojure.string/split
-         (get (clojure.java.shell/sh
-                "sh" "-c"
-                (str " cd " p ";"
-                     " find `pwd` -maxdepth 1 "))
-              :out) #"\n"))
-     (files-only
-       [p]
-       (clojure.string/split
-         (get (clojure.java.shell/sh
-                "sh" "-c"
-                (str " cd " p ";"
-                     " find `pwd` -type f -maxdepth 1 "))
-              :out) #"\n"))
-     (dirs-only
-       [p]
-       (clojure.string/split
-         (get (clojure.java.shell/sh
-                "sh" "-c"
-                (str " cd " p ";"
-                     " find `pwd` -type d -maxdepth 1 "))
-              :out) #"\n"))
-     (include-dirs-only-sub-dirs
-       [p]
-       (clojure.string/split
-         (get (clojure.java.shell/sh
-                "sh" "-c"
-                (str " cd " p ";"
-                     " find `pwd` -type d "))
-              :out) #"\n"))]
-    (cond
-      (and (= dirs-&-files? true)
-           (= include-sub-dirs? false))
-      (dirs-&-files path)
-      (and (= files-only? true)
-           (= include-sub-dirs? false))
-      (files-only path)
-      (and (= dirs-only? true)
-           (= include-sub-dirs? false))
-      (dirs-only path)
-      (and (= dirs-only? true)
-           (= include-sub-dirs? true))
-      (include-dirs-only-sub-dirs path))))
+(defmulti cetl-file-list (fn [x] (:list x)))
 
+(defmethod cetl-file-list :dirs-and-files
+  [path]
+  (clojure.string/split
+    (get (clojure.java.shell/sh
+           "sh" "-c"
+           (str " cd " (:path path) ";"
+                " find `pwd` -maxdepth 1 "))
+         :out) #"\n"))
 
+(defmethod cetl-file-list :files
+  [path]
+  (clojure.string/split
+    (get (clojure.java.shell/sh
+           "sh" "-c"
+           (str " cd " (:path path) ";"
+                " find `pwd` -type f -maxdepth 1 "))
+         :out) #"\n"))
+
+(defmethod cetl-file-list :dirs
+  [path]
+  (clojure.string/split
+    (get (clojure.java.shell/sh
+           "sh" "-c"
+           (str " cd " (:path path) ";"
+                " find `pwd` -type d -maxdepth 1 "))
+         :out) #"\n"))
+
+(defmethod cetl-file-list :dirs-only-sub-dirs
+  [path]
+  (clojure.string/split
+    (get (clojure.java.shell/sh
+           "sh" "-c"
+           (str " cd " {:path path} ";"
+                " find `pwd` -type d "))
+         :out) #"\n"))
+
+(defmethod cetl-file-list :files-only-sub-dirs
+  ;TODO implement
+  []
+  )
 
 #_(defn cetl-file-unarchive
     [path in out & {:keys []}])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn cetl-file-archive
-  [path & {:keys [archive-format]}]
-  (letfn
-    [(zip
-       [p]
-       (clojure.java.shell/sh
-         "sh" "-c"
-         (str " cd " (.getParent (File. p)) "/;"
-              " zip " (last (s/split p #"/")) ".zip"
-              " -r " (last (s/split p #"/")))))
-     (gzip
-       [p]
-       (clojure.java.shell/sh
-         "sh" "-c"
-         (str " cd " (.getParent (File. p)) "/;"
-              " tar -cvzf " (last (s/split p #"/")) ".tar.gz"
-              " " (last (s/split p #"/")))))]
-    (cond
-      (= archive-format :zip) (zip path)
-      (= archive-format :gzip) (gzip path))))
+
+(defmulti cetl-file-archive (fn [x] (:archive x)))
+
+(defmethod cetl-file-archive :zip
+  [path]
+  (clojure.java.shell/sh
+    "sh" "-c"
+    (str " cd " (.getParent (File. (:path path))) "/;"
+         " zip " (last (s/split (:path path) #"/")) ".zip"
+         " -r " (last (s/split (:path path) #"/")))))
+
+(defmethod cetl-file-archive :gzip
+  [path]
+  (clojure.java.shell/sh
+    "sh" "-c"
+    (str " cd " (.getParent (File. (:path path))) "/;"
+         " tar -cvzf " (last (s/split (:path path) #"/")) ".tar.gz"
+         " " (last (s/split (:path path) #"/")))))
+
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn cetl-change-file-encoding
@@ -108,47 +101,14 @@
 
 
 
-(defmulti cetl-file-list (fn [x] (:list x)))
-
-(defmethod cetl-file-list :dirs-and-files?
-  []
-  )
-
-(defmethod cetl-file-list :files?
-  []
-  )
-
-(defmethod cetl-file-list :dirs?
-  []
-  )
-
-(defmethod cetl-file-list :dirs-only-sub-dirs?
-  []
-  )
-
-(defmethod cetl-file-list :files-only-sub-dirs?
-  []
-  )
 
 
 
 
-(defmulti full-moon-behavior (fn [were-creature] (:were-type were-creature)))
 
-(defmethod full-moon-behavior :wolf
-  [were-creature]
-  (+ 8 8))
 
-(defmethod full-moon-behavior :simmons
-  [were-creature]
-  (str (:name were-creature) " will encourage people and sweat to the oldies"))
 
-(full-moon-behavior {:were-type :wolf})
-; => "Rachel from next door will howl and murder"
 
-(full-moon-behavior {:name "Andy the baker"
-                     :were-type :simmons})
-; => "Andy the baker will encourage people an
 
 
 
