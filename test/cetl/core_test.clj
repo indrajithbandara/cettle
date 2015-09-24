@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [cetl.core :refer :all]
             [cetl.file.management :refer :all])
-  (:import (java.io File)))
+  (:import (java.io File)
+           (org.apache.commons.io FileUtils)))
 
 (deftest a-test
   (testing "Components test"
@@ -16,4 +17,4 @@
 
 (map (fn [x] (cetl-file-archive {:path x :archive :zip})) list-files)
 
-; find . `pwd` -maxdepth 1 -not -type dl
+; file -I test-file.txt
