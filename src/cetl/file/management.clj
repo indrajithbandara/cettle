@@ -5,6 +5,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
+;TODO add return values as in cetl-enccode funcs ie both return map x
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -79,23 +80,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn cetl-change-file-encode
-  [in-path out-path & {:keys [from-encode to-encode]}]
-  (letfn [(encoding
-            [in out x xs]
-            (FileUtils/write
-              (File. out)
-              (FileUtils/readFileToString
-                (File. in) x) xs))]
-    (cond (and (= from-encode :UTF-8)
-               (= to-encode :ISO-8859-15))
-          (encoding in-path out-path "UTF-8" "ISO-8859-15")
-          (and (= from-encode :ISO-8859-15)
-               (= to-encode :UTF-8))
-          (encoding in-path out-path "ISO-8859-15" "UTF-8"))))
-
-;TODO test cetl-file-encode functions
-
 (defmulti cetl-file-encode (fn [x] (:encode x)))
 
 (defmethod cetl-file-encode :UTF-8
@@ -103,22 +87,21 @@
   (FileUtils/write
      (File. (:path x))
      (FileUtils/readFileToString
-       (File. (:path x)) (name (:encode x))) "ISO-8859-15"))
+       (File.
+         (:path x)) "ISO-8859-1")
+     (name (:encode x))) x)
 
 (defmethod cetl-file-encode :ISO-8859-15
   [x]
   (FileUtils/write
     (File. (:path x))
     (FileUtils/readFileToString
-      (File. (:path x)) (name (:encode x))) "UTF-8"))
+      (File.
+        (:path x)) "UTF-8")
+    (name (:encode x))) x)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-
 
 
 
