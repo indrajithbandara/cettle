@@ -10,7 +10,7 @@
 
 ;TODO test why "/Users/gregadebesin/Development/Cetl/TestFiles copy" a path with a space in name dosent work
 
-(def list-files (cetl-file-list {:path "/Users/gregadebesin/Development/Cetl"
+(def list-files (cetl-file-list {:path "/Users/gregadebesin/Development/Cetl "
                                  :list :dirs}))
 
 (map (fn [x] (cetl-file-archive {:path x :archive :zip})) list-files)
