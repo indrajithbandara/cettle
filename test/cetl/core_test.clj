@@ -1,13 +1,11 @@
 (ns cetl.core-test
   (:require [clojure.test :refer :all]
             [cetl.core :refer :all]
-            [cetl.file.management :refer :all])
-  (:import (java.io File)
-           (org.apache.commons.io FileUtils)))
+            [cetl.file.management :refer :all]))
 
 (deftest a-test
   (testing "Components test"
-    (is (= 0 1))))
+    (is (map? (cetl-file-archive )))))
 
 
 ;TODO test why "/Users/gregadebesin/Development/Cetl/TestFiles copy" a path with a space in name dosent work
