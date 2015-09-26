@@ -62,23 +62,33 @@
 
 (defmethod cetl-file-archive :zip
   [path]
-  (clojure.java.shell/sh
-    "sh" "-c"
-    (str " cd " (.getParent (File. (:path path))) "/;"
-         " zip " (last (s/split (:path path) #"/")) ".zip"
-         " -r " (last (s/split (:path path) #"/")))))
+  (let [move-to-dir " cd "
+        zip-command " zip "
+        rec-command " -r "
+        next-command ";"
+        file-ext ".zip"
+        get-path (:path path)]
+    (clojure.java.shell/sh
+      "sh" "-c"
+      (str move-to-dir (.getParent (File. get-path)) next-command
+           zip-command (-> (s/split get-path #"/") last) file-ext
+           rec-command (-> (s/split get-path #"/") last)))))
 
 (defmethod cetl-file-archive :gzip
   [path]
-  (clojure.java.shell/sh
-    "sh" "-c"
-    (str " cd " (.getParent (File. (:path path))) "/;"
-         " tar -cvzf " (last (s/split (:path path) #"/")) ".tar.gz"
-         " " (last (s/split (:path path) #"/")))))
+  (let [move-to-dir " cd "
+        gzip-command " tar -cvzf "
+        next-command ";"
+        file-ext ".tar.gz "
+        get-path (:path path)]
+    (clojure.java.shell/sh
+      "sh" "-c"
+      (str move-to-dir (.getParent (File. get-path)) next-command
+           gzip-command (-> (s/split get-path #"/") last) file-ext
+           (-> (s/split get-path #"/") last)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmulti cetl-file-encode (fn [x] (:encode x)))
 
@@ -102,21 +112,4 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
