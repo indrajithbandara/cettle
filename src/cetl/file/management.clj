@@ -44,7 +44,7 @@
   (clojure.string/split
     (get (clojure.java.shell/sh
            "sh" "-c"
-           (str " cd " {:path path} ";"
+           (str " cd " (:path path) ";"
                 " find `pwd` -type d "))
          :out) #"\n"))
 
