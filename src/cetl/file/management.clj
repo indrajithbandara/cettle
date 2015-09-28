@@ -6,7 +6,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO add return values as in cetl-enccode funcs ie both return map x
+;TODO add return vals for files, dirs and dirs-only-sub-dirs
 
 ;==============================================================================================
 
@@ -14,12 +14,17 @@
 
 (defmethod cetl-file-list :dirs-and-files
   [path]
-  (clojure.string/split
-    (get (clojure.java.shell/sh
-           "sh" "-c"
-           (str " cd " (:path path) ";"
-                " find `pwd` -maxdepth 1 "))
-         :out) #"\n"))
+  (let [move-to-dir " cd "
+        command " find `pwd` -maxdepth 1 "
+        next-command ";"]
+    (assoc path :value
+                (clojure.string/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path path)
+                              next-command
+                              command))
+                       :out) #"\n"))))
 
 (defmethod cetl-file-list :files
   [path]
@@ -73,7 +78,8 @@
       "sh" "-c"
       (str move-to-dir (.getParent (File. get-path)) next-command
            zip-command (-> (s/split get-path #"/") last) file-ext
-           rec-command (-> (s/split get-path #"/") last)))))
+           rec-command (-> (s/split get-path #"/") last)))
+    (assoc path :path (str (:path path) file-ext))))
 
 (defmethod cetl-file-archive :gzip
   [path]
@@ -86,7 +92,8 @@
       "sh" "-c"
       (str move-to-dir (.getParent (File. get-path)) next-command
            gzip-command (-> (s/split get-path #"/") last) file-ext
-           (-> (s/split get-path #"/") last)))))
+           (-> (s/split get-path #"/") last)))
+    (assoc path :path (str (:path path) file-ext))))
 
 ;=================================================================================================
 
@@ -128,6 +135,27 @@
   (io/copy
     (io/file (:in-file-path x))
     (io/file (:out-file-path x))))
+
+;================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
