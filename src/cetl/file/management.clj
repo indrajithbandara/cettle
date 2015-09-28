@@ -17,14 +17,16 @@
   (let [move-to-dir " cd "
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
-    (assoc path :value
-                (clojure.string/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path path)
-                              next-command
-                              command))
-                       :out) #"\n"))))
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (clojure.string/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      {:list :exec})))
 
 (defmethod cetl-file-list :files
   [path]
