@@ -6,7 +6,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO add return vals for files, dirs and dirs-only-sub-dirs
+
 
 ;==============================================================================================
 
@@ -19,7 +19,7 @@
         next-command ";"]
     (clojure.set/rename-keys
       (assoc path :value
-                  (clojure.string/split
+                  (s/split
                     (get (clojure.java.shell/sh
                            "sh" "-c"
                            (str move-to-dir (:path path)
@@ -30,30 +30,51 @@
 
 (defmethod cetl-file-list :files
   [path]
-  (clojure.string/split
-    (get (clojure.java.shell/sh
-           "sh" "-c"
-           (str " cd " (:path path) ";"
-                " find `pwd` -type f -maxdepth 1 "))
-         :out) #"\n"))
+  (let [move-to-dir " cd "
+        command  " find `pwd` -type f -maxdepth 1 "
+        next-command ";"]
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      {:list :exec})))
 
 (defmethod cetl-file-list :dirs
   [path]
-  (clojure.string/split
-    (get (clojure.java.shell/sh
-           "sh" "-c"
-           (str " cd " (:path path) ";"
-                " find `pwd` -type d -maxdepth 1 "))
-         :out) #"\n"))
+  (let [move-to-dir " cd "
+        command  " find `pwd` -type d -maxdepth 1 "
+        next-command ";"]
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      {:list :exec})))
 
 (defmethod cetl-file-list :dirs-only-sub-dirs
   [path]
-  (clojure.string/split
-    (get (clojure.java.shell/sh
-           "sh" "-c"
-           (str " cd " (:path path) ";"
-                " find `pwd` -type d "))
-         :out) #"\n"))
+  (let [move-to-dir " cd "
+        command  " find `pwd` -type d "
+        next-command ";"]
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      {:list :exec})))
 
 (defmethod cetl-file-list :files-only-sub-dirs
   ;TODO implement
@@ -65,6 +86,7 @@
 
 ;=================================================================================================
 
+;TODO add exec and val map for all below funcs, as in above funcs ie {:list :exec}
 
 (defmulti cetl-file-archive (fn [x] (:archive x)))
 
@@ -127,7 +149,7 @@
 (defn cetl-file-temp-create
   [x]
   (io/writer
-    (File.
+    (io/file
       (str (:path x) "/" (:file-name x)))))
 
 ;================================================================================================
@@ -140,7 +162,26 @@
 
 ;================================================================================================
 
+(defn cetl-file-delete
+  [x]
+  (io/delete-file
+    (io/file
+      (str (:path x) "/" (:file-name x)))))
 
+;================================================================================================
+
+;abs path of file (will need to get abs file pathe regardsless of of user dosent enter it)
+;directory name
+;base name
+;read and write?
+;file size
+;modified-time (millis)
+;modified str (java date)
+
+(defn cetl-file-properties
+  [x]
+  (let [abs-file-path (if (.exists (File. (:path x))) (:path x) nil)
+        ]))
 
 
 
