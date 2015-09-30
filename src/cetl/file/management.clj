@@ -2,7 +2,8 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io])
   (:import (org.apache.commons.io FileUtils)
-           (java.io File)))
+           (java.io File)
+           (java.text SimpleDateFormat)))
 
 (use '[clojure.java.shell :only [sh]])
 
@@ -180,8 +181,20 @@
 
 (defn cetl-file-properties
   [x]
-  (let [abs-file-path (if (.exists (File. (:path x))) (:path x) nil)
-        ]))
+  (let [file (File. (:path x))
+        abs-file-path (.getAbsolutePath file)
+        parent-dir (.getParent file)
+        file-name (.getName file)
+        read-permissions (.canRead file)
+        write-permissions (.canWrite file)
+        execute-permissions (.canExecute file)
+        file-size (->> (reduce #(/ %1 %2) [(.length file) 1048576])
+                       double
+                       (format "%.3f")
+                       read-string)
+        modified-time-millis (.lastModified file)
+        modified-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)]
+    modified-str))
 
 
 
