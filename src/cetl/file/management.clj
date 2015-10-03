@@ -11,6 +11,8 @@
 
 ;==============================================================================================
 
+;TODO add output map to contain :value vector and alter funcs to take :file param as in zip and gzip
+
 (defmulti cetl-file-list (fn [x] (:list x)))
 
 (defmethod cetl-file-list :dirs-and-files
@@ -87,8 +89,6 @@
 
 ;=================================================================================================
 
-;TODO add exec and val map for all below funcs, as in above funcs ie {:list :exec}
-
 (defmulti cetl-file-archive (fn [x] (:archive x)))
 
 (defmethod cetl-file-archive :zip
@@ -98,27 +98,35 @@
         rec-command " -r "
         next-command ";"
         file-ext ".zip"
-        get-path (:path path)]
+        get-path (:path path)
+        file-name (:file path)]
     (clojure.java.shell/sh
       "sh" "-c"
-      (str move-to-dir (.getParent (File. get-path)) next-command
-           zip-command (-> (s/split get-path #"/") last) file-ext
-           rec-command (-> (s/split get-path #"/") last)))
-    (assoc path :path (str (:path path) file-ext))))
+      (str move-to-dir (File. get-path) next-command
+           zip-command (str file-name file-ext)
+           rec-command file-name))
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (vector
+                    (str (:path path) "/" (:file path) file-ext)))
+      {:archive :exec})))
 
 (defmethod cetl-file-archive :gzip
   [path]
   (let [move-to-dir " cd "
         gzip-command " tar -cvzf "
         next-command ";"
-        file-ext ".tar.gz "
-        get-path (:path path)]
+        file-ext ".tar.gz"
+        get-path (:path path)
+        file-name (:file path)]
     (clojure.java.shell/sh
       "sh" "-c"
-      (str move-to-dir (.getParent (File. get-path)) next-command
-           gzip-command (-> (s/split get-path #"/") last) file-ext
-           (-> (s/split get-path #"/") last)))
-    (assoc path :path (str (:path path) file-ext))))
+      (str move-to-dir  (File. get-path) next-command
+           gzip-command (str file-name file-ext" "file-name)))
+    (clojure.set/rename-keys
+      (assoc path :value
+                  (vector (str (:path path) "/" (:file path) file-ext)))
+      {:archive :exec})))
 
 ;=================================================================================================
 
@@ -195,24 +203,4 @@
         modified-time-millis (.lastModified file)
         modified-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)]
     modified-str))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
