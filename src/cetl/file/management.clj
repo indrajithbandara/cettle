@@ -1,6 +1,7 @@
 (ns cetl.file.management
   (:require [clojure.string :as s]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.set :refer [rename-keys]])
   (:import (org.apache.commons.io FileUtils)
            (java.io File)
            (java.text SimpleDateFormat)))
@@ -11,8 +12,6 @@
 
 ;==============================================================================================
 
-;TODO add output map to contain :value vector and alter funcs to take :file param as in zip and gzip
-
 (defmulti cetl-file-list (fn [x] (:list x)))
 
 (defmethod cetl-file-list :dirs-and-files
@@ -20,7 +19,7 @@
   (let [move-to-dir " cd "
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
-    (clojure.set/rename-keys
+    (rename-keys
       (assoc path :value
                   (s/split
                     (get (clojure.java.shell/sh
@@ -36,7 +35,7 @@
   (let [move-to-dir " cd "
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
-    (clojure.set/rename-keys
+    (rename-keys
       (assoc path :value
                   (s/split
                     (get (clojure.java.shell/sh
@@ -52,7 +51,7 @@
   (let [move-to-dir " cd "
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
-    (clojure.set/rename-keys
+    (rename-keys
       (assoc path :value
                   (s/split
                     (get (clojure.java.shell/sh
@@ -68,7 +67,7 @@
   (let [move-to-dir " cd "
         command  " find `pwd` -type d "
         next-command ";"]
-    (clojure.set/rename-keys
+    (rename-keys
       (assoc path :value
                   (s/split
                     (get (clojure.java.shell/sh
@@ -92,40 +91,40 @@
 (defmulti cetl-file-archive (fn [x] (:archive x)))
 
 (defmethod cetl-file-archive :zip
-  [path]
+  [x]
   (let [move-to-dir " cd "
         zip-command " zip "
         rec-command " -r "
         next-command ";"
         file-ext ".zip"
-        get-path (:path path)
-        file-name (:file path)]
+        path (:path x)
+        file (:file x)]
     (clojure.java.shell/sh
       "sh" "-c"
-      (str move-to-dir (File. get-path) next-command
-           zip-command (str file-name file-ext)
-           rec-command file-name))
-    (clojure.set/rename-keys
-      (assoc path :value
+      (str move-to-dir (File. path) next-command
+           zip-command (str file file-ext)
+           rec-command file))
+    (rename-keys
+      (assoc x :value
                   (vector
-                    (str (:path path) "/" (:file path) file-ext)))
+                    (str (:path x) "/" (:file x) file-ext)))
       {:archive :exec})))
 
 (defmethod cetl-file-archive :gzip
-  [path]
+  [x]
   (let [move-to-dir " cd "
         gzip-command " tar -cvzf "
         next-command ";"
         file-ext ".tar.gz"
-        get-path (:path path)
-        file-name (:file path)]
+        path (:path x)
+        file (:file x)]
     (clojure.java.shell/sh
       "sh" "-c"
-      (str move-to-dir  (File. get-path) next-command
-           gzip-command (str file-name file-ext" "file-name)))
-    (clojure.set/rename-keys
-      (assoc path :value
-                  (vector (str (:path path) "/" (:file path) file-ext)))
+      (str move-to-dir  (File. path) next-command
+           gzip-command (str file file-ext" "file)))
+    (rename-keys
+      (assoc x :value
+                  (vector (str (:path x) "/" (:file x) file-ext)))
       {:archive :exec})))
 
 ;=================================================================================================
@@ -133,23 +132,33 @@
 
 (defmulti cetl-file-encode (fn [x] (:encode x)))
 
+(defmethod cetl-file-encode :ISO-8859-1
+  [x]
+  (let [file (:file x)
+        path (:path x)
+        file-path (str path "/" file)]
+    (FileUtils/write
+      (File. file-path)
+      (FileUtils/readFileToString
+        (File. file-path) "UTF-8")
+      (name (:encode x))))
+  (rename-keys
+    (assoc x :value (vector (str (:path x) "/" (:file x))))
+    {:encode :exec}))
+
 (defmethod cetl-file-encode :UTF-8
   [x]
-  (FileUtils/write
-     (File. (:path x))
-     (FileUtils/readFileToString
-       (File.
-         (:path x)) "ISO-8859-1")
-     (name (:encode x))) x)
-
-(defmethod cetl-file-encode :ISO-8859-15
-  [x]
-  (FileUtils/write
-    (File. (:path x))
-    (FileUtils/readFileToString
-      (File.
-        (:path x)) "UTF-8")
-    (name (:encode x))) x)
+  (let [file (:file x)
+        path (:path x)
+        file-path (str path "/" file)]
+    (FileUtils/write
+      (File. file-path)
+      (FileUtils/readFileToString
+        (File. file-path) "ISO-8859-1")
+      (name (:encode x))))
+  (rename-keys
+    (assoc x :value (vector (str (:path x) "/" (:file x))))
+    {:encode :exec}))
 
 
 ;=================================================================================================
@@ -203,4 +212,49 @@
         modified-time-millis (.lastModified file)
         modified-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)]
     modified-str))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
