@@ -166,17 +166,26 @@
 
 (defn cetl-file-temp-create
   [x]
-  (io/writer
-    (io/file
-      (str (:path x) "/" (:file-name x)))))
+  (let [file (:file x)
+        path (:path x)
+        exec (:temp-create x)]
+    (if (= exec :temp-file)
+      (io/writer
+        (io/file
+          (str path "/" file))))))
 
 ;================================================================================================
 
 (defn cetl-file-copy
   [x]
-  (io/copy
-    (io/file (:in-file-path x))
-    (io/file (:out-file-path x))))
+  (let [file (:file x)
+        in-path (:in-path x)
+        out-path (:out-path x)
+        exec (:file-copy x)]
+    (if (= exec :copy-file)
+      (io/copy
+        (io/file (str in-path "/" file))
+        (io/file (str out-path "/"file))))))
 
 ;================================================================================================
 
@@ -213,48 +222,19 @@
         modified-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)]
     modified-str))
 
+(defn read-dataset
+  "
+  Returns a dataset read from a file or a URL.
+  Options:
+    :delim (default \\,), other options (\\tab \\space \\|  etc)
+    :quote (default \\\") character used for quoting strings
+    :skip (default 0) the number of lines to skip at the top of the file.
+    :header (default false) indicates the file has a header line
+    :compress-delim (default true if delim = \\space, false otherwise) means
+                    compress multiple adjacent delimiters into a single delimiter.
+    :empty-field-value (default nil) indicates the interpretation of an empty field.
+    :comment-char (default nil) skip commented lines (\"#\", \"%\", \";\", etc)
+  "
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  [filename & {:keys [delim keyword-headers quote skip header compress-delim empty-field-value comment-char]
+               :or {delim \, quote \" skip 0 header false keyword-headers true}}])
