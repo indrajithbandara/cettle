@@ -20,7 +20,7 @@
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
     (rename-keys
-      (assoc path :value
+      (assoc path :result
                   (s/split
                     (get (clojure.java.shell/sh
                            "sh" "-c"
@@ -36,7 +36,7 @@
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
     (rename-keys
-      (assoc path :value
+      (assoc path :result
                   (s/split
                     (get (clojure.java.shell/sh
                            "sh" "-c"
@@ -52,7 +52,7 @@
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
     (rename-keys
-      (assoc path :value
+      (assoc path :result
                   (s/split
                     (get (clojure.java.shell/sh
                            "sh" "-c"
@@ -68,7 +68,7 @@
         command  " find `pwd` -type d "
         next-command ";"]
     (rename-keys
-      (assoc path :value
+      (assoc path :result
                   (s/split
                     (get (clojure.java.shell/sh
                            "sh" "-c"
@@ -105,7 +105,7 @@
            zip-command (str file file-ext)
            rec-command file))
     (rename-keys
-      (assoc x :value
+      (assoc x :result
                   (vector
                     (str (:path x) "/" (:file x) file-ext)))
       {:archive :exec})))
@@ -123,7 +123,7 @@
       (str move-to-dir  (File. path) next-command
            gzip-command (str file file-ext" "file)))
     (rename-keys
-      (assoc x :value
+      (assoc x :result
                   (vector (str (:path x) "/" (:file x) file-ext)))
       {:archive :exec})))
 
@@ -143,7 +143,7 @@
         (File. file-path) "UTF-8")
       (name (:encode x))))
   (rename-keys
-    (assoc x :value (vector (str (:path x) "/" (:file x))))
+    (assoc x :result (vector (str (:path x) "/" (:file x))))
     {:encode :exec}))
 
 (defmethod cetl-file-encode :UTF-8
@@ -157,7 +157,7 @@
         (File. file-path) "ISO-8859-1")
       (name (:encode x))))
   (rename-keys
-    (assoc x :value (vector (str (:path x) "/" (:file x))))
+    (assoc x :result (vector (str (:path x) "/" (:file x))))
     {:encode :exec}))
 
 
@@ -172,7 +172,10 @@
     (if (= exec :temp-file)
       (io/writer
         (io/file
-          (str path "/" file))))))
+          (str path "/" file))))
+    (rename-keys
+      (assoc x :result (vector (str (:path x) "/" (:file x))))
+      {:create :exec})))
 
 ;================================================================================================
 
@@ -182,10 +185,14 @@
         in-path (:in-path x)
         out-path (:out-path x)
         exec (:copy x)]
-    (if (= exec :file)
+    (if (= exec :file-copy)
       (io/copy
         (io/file (str in-path "/" file))
-        (io/file (str out-path "/"file))))))
+        (io/file (str out-path "/"file))))
+    (rename-keys
+      (assoc x :result (vector (str (:in-path x) "/" (:file x))
+                               (str (:out-path x) "/" (:file x))))
+      {:copy :exec})))
 
 ;================================================================================================
 
@@ -194,10 +201,13 @@
   (let [file (:file x)
         path (:path x)
         exec (:delete x)]
-    (if (= exec :file)
+    (if (= exec :file-delete)
       (io/delete-file
         (io/file
-          (str path "/" file))))))
+          (str path "/" file))))
+    (rename-keys
+      (assoc x :result (vector (str (:path x) "/" (:file x))))
+      {:delete :exec})))
 
 ;================================================================================================
 
