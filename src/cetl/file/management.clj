@@ -211,13 +211,6 @@
 
 ;================================================================================================
 
-;abs path of file (will need to get abs file pathe regardsless of of user dosent enter it)
-;directory name
-;base name
-;read and write?
-;file size
-;modified-time (millis)
-;modified str (java date)
 
 (defn cetl-file-properties
   [x]
