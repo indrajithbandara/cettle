@@ -8,77 +8,69 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-
+;TODO test all changes to functions
 
 ;==============================================================================================
 
-(defmulti cetl-file-list (fn [x] (:list x)))
+(defmulti cetl-list-file (fn [x] (:exec x)))
 
-(defmethod cetl-file-list :dirs-and-files
+(defmethod cetl-list-file :list-dirs-files
   [path]
   (let [move-to-dir " cd "
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
-    (rename-keys
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
-      {:list :exec})))
+    (assoc path :result
+                (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path path)
+                              next-command
+                              command))
+                       :out) #"\n"))))
 
-(defmethod cetl-file-list :files
+(defmethod cetl-list-file :list-files
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
-    (rename-keys
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
-      {:list :exec})))
+    (assoc path :result
+                (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path path)
+                              next-command
+                              command))
+                       :out) #"\n"))))
 
-(defmethod cetl-file-list :dirs
+(defmethod cetl-list-file :list-dirs
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
-    (rename-keys
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
-      {:list :exec})))
+    (assoc path :result
+                (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path path)
+                              next-command
+                              command))
+                       :out) #"\n"))))
 
-(defmethod cetl-file-list :dirs-only-sub-dirs
+(defmethod cetl-list-file :list-dirs-sub-dirs
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d "
         next-command ";"]
-    (rename-keys
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
-      {:list :exec})))
+    (assoc path :result
+                (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path path)
+                              next-command
+                              command))
+                       :out) #"\n"))))
 
-(defmethod cetl-file-list :files-only-sub-dirs
+(defmethod cetl-list-file :files-only-sub-dirs
   ;TODO implement
   []
   )
@@ -88,9 +80,9 @@
 
 ;=================================================================================================
 
-(defmulti cetl-file-archive (fn [x] (:archive x)))
+(defmulti cetl-archive-file (fn [x] (:exec x)))
 
-(defmethod cetl-file-archive :zip
+(defmethod cetl-archive-file :zip-file
   [x]
   (let [move-to-dir " cd "
         zip-command " zip "
@@ -104,13 +96,11 @@
       (str move-to-dir (File. path) next-command
            zip-command (str file file-ext)
            rec-command file))
-    (rename-keys
-      (assoc x :result
-                  (vector
-                    (str (:path x) "/" (:file x) file-ext)))
-      {:archive :exec})))
+    (assoc x :result
+             (vector
+               (str (:path x) "/" (:file x) file-ext)))))
 
-(defmethod cetl-file-archive :gzip
+(defmethod cetl-archive-file :gzip-file
   [x]
   (let [move-to-dir " cd "
         gzip-command " tar -cvzf "
@@ -122,17 +112,15 @@
       "sh" "-c"
       (str move-to-dir  (File. path) next-command
            gzip-command (str file file-ext" "file)))
-    (rename-keys
-      (assoc x :result
-                  (vector (str (:path x) "/" (:file x) file-ext)))
-      {:archive :exec})))
+    (assoc x :result
+             (vector (str (:path x) "/" (:file x) file-ext)))))
 
 ;=================================================================================================
 
 
-(defmulti cetl-file-encode (fn [x] (:encode x)))
+(defmulti cetl-encode-file (fn [x] (:exec x)))
 
-(defmethod cetl-file-encode :ISO-8859-1
+(defmethod cetl-encode-file :encode-file-ISO-8859-1
   [x]
   (let [file (:file x)
         path (:path x)
@@ -140,13 +128,10 @@
     (FileUtils/write
       (File. file-path)
       (FileUtils/readFileToString
-        (File. file-path) "UTF-8")
-      (name (:encode x))))
-  (rename-keys
-    (assoc x :result (vector (str (:path x) "/" (:file x))))
-    {:encode :exec}))
+        (File. file-path) "UTF-8") "ISO-8859-1"))
+  (assoc x :result (vector (str (:path x) "/" (:file x)))))
 
-(defmethod cetl-file-encode :UTF-8
+(defmethod cetl-encode-file :encode-file-UTF-8
   [x]
   (let [file (:file x)
         path (:path x)
@@ -154,60 +139,54 @@
     (FileUtils/write
       (File. file-path)
       (FileUtils/readFileToString
-        (File. file-path) "ISO-8859-1")
-      (name (:encode x))))
-  (rename-keys
-    (assoc x :result (vector (str (:path x) "/" (:file x))))
-    {:encode :exec}))
+        (File. file-path) "ISO-8859-1") "UTF-8"))
+  (assoc x :result (vector (str (:path x) "/" (:file x)))))
 
 
 ;=================================================================================================
 
 
-(defn cetl-file-temp-create
+(defn cetl-create-temp-file
   [x]
   (let [file (:file x)
         path (:path x)
-        exec (:create x)]
-    (if (= exec :temp-file)
-      (io/writer
-        (io/file
-          (str path "/" file))))
-    (rename-keys
-      (assoc x :result (vector (str (:path x) "/" (:file x))))
-      {:create :exec})))
+        exec (:exec x)]
+    (if (= exec :create-temp-file)
+      (do
+        (io/writer
+          (io/file
+            (str path "/" file)))
+        (assoc x :result (vector (str (:path x) "/" (:file x))))))))
 
 ;================================================================================================
 
-(defn cetl-file-copy
+(defn cetl-copy-file
   [x]
   (let [file (:file x)
         in-path (:in-path x)
         out-path (:out-path x)
-        exec (:copy x)]
-    (if (= exec :file-copy)
-      (io/copy
-        (io/file (str in-path "/" file))
-        (io/file (str out-path "/"file))))
-    (rename-keys
-      (assoc x :result (vector (str (:in-path x) "/" (:file x))
-                               (str (:out-path x) "/" (:file x))))
-      {:copy :exec})))
+        exec (:exec x)]
+    (if (= exec :copy-file)
+      (do
+        (io/copy
+          (io/file (str in-path "/" file))
+          (io/file (str out-path "/" file)))
+        (assoc x :result (vector (str (:in-path x) "/" (:file x))
+                                 (str (:out-path x) "/" (:file x))))))))
 
 ;================================================================================================
 
-(defn cetl-file-delete
+(defn cetl-delete-file
   [x]
   (let [file (:file x)
         path (:path x)
-        exec (:delete x)]
-    (if (= exec :file-delete)
-      (io/delete-file
-        (io/file
-          (str path "/" file))))
-    (rename-keys
-      (assoc x :result (vector (str (:path x) "/" (:file x))))
-      {:delete :exec})))
+        exec (:exec x)]
+    (if (= exec :delete-file)
+      (do
+        (io/delete-file
+          (io/file
+            (str path "/" file)))
+        (assoc x :result (vector (str (:path x) "/" (:file x))))))))
 
 ;================================================================================================
 
@@ -226,5 +205,15 @@
                        (format "%.3f")
                        read-string)
         modified-time-millis (.lastModified file)
-        modified-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)]
-    modified-str))
+        modified-time-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)
+        exec (:exec x)]
+    (if (= exec :file-properties)
+      (do (assoc x :result (vector abs-file-path
+                                   parent-dir
+                                   file-name
+                                   read-permissions
+                                   write-permissions
+                                   execute-permissions
+                                   file-size
+                                   modified-time-millis
+                                   modified-time-str))))))
