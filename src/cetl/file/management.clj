@@ -1,14 +1,15 @@
 (ns cetl.file.management
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
-            [clojure.set :refer [rename-keys]])
+            [clojure.set :refer [rename-keys]]
+            [cetl.utils.component-utils :refer [file-exists?]])
   (:import (org.apache.commons.io FileUtils)
            (java.io File)
            (java.text SimpleDateFormat)))
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO test all changes to functions
+;TODO add error handling for cases input paths or output paths are not present and add as in copy-file func
 
 ;==============================================================================================
 
@@ -150,13 +151,14 @@
   [x]
   (let [file (:file x)
         path (:path x)
-        exec (:exec x)]
+        exec (:exec x)
+        full-path (str (:path x) "/" (:file x))]
     (if (= exec :create-temp-file)
       (do
         (io/writer
           (io/file
             (str path "/" file)))
-        (assoc x :result (vector (str (:path x) "/" (:file x))))))))
+        (assoc x :result (vector full-path))))))
 
 ;================================================================================================
 
@@ -165,13 +167,14 @@
   (let [file (:file x)
         in-path (:in-path x)
         out-path (:out-path x)
-        exec (:exec x)]
-    (if (= exec :copy-file)
+        exec (:exec x)
+        full-in-path (str (:in-path x) "/" (:file x))]
+    (if (and (= exec :copy-file) (file-exists? full-in-path))
       (do
         (io/copy
           (io/file (str in-path "/" file))
           (io/file (str out-path "/" file)))
-        (assoc x :result (vector (str (:in-path x) "/" (:file x))
+        (assoc x :result (vector (str full-in-path)
                                  (str (:out-path x) "/" (:file x))))))))
 
 ;================================================================================================
@@ -217,3 +220,14 @@
                                    file-size
                                    modified-time-millis
                                    modified-time-str))))))
+
+
+
+
+
+
+
+
+
+
+
