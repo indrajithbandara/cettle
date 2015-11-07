@@ -10,3 +10,9 @@
                  (not (.isDirectory file))))
       path)))
 
+
+(defn dir-exists?
+  [path]
+ (let [file (File. path)]
+   (if (.isDirectory file) path)))
+
