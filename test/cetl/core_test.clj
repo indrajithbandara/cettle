@@ -5,10 +5,10 @@
 
 
 
-(cetl-list-file {:path "/Users/gregadebesin/Development"
+(cetl-list-file {:path "/Users/gregadebesin/Developme"
                  :exec :list-files})
 
-(cetl-list-file {:path "/Users/gregadebesin/Development"
+(cetl-list-file {:path "/Users/gregadebesin/Developmen"
                  :exec :list-dirs-files})
 
 (cetl-list-file {:path "/Users/gregadebesin/Development"

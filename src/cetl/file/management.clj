@@ -2,14 +2,14 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.utils.component-utils :refer [file-exists?]])
+            [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
            (java.io File)
            (java.text SimpleDateFormat)))
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO add error handling for cases input paths or output paths are not present and add as in copy-file func
+;TODO add error handling for cases input paths or output paths are not present and add as in list-file funcs
 
 ;==============================================================================================
 
@@ -20,56 +20,72 @@
   (let [move-to-dir " cd "
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
-    (assoc path :result
-                (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path path)
-                              next-command
-                              command))
-                       :out) #"\n"))))
+    (if (dir-exists? (:path path))
+      (assoc path :result
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      (throw (IllegalArgumentException.
+               (str (:path path) " is not a directory"))))))
+
 
 (defmethod cetl-list-file :list-files
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
-    (assoc path :result
-                (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path path)
-                              next-command
-                              command))
-                       :out) #"\n"))))
+    (if (dir-exists? (:path path))
+      (assoc path :result
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      (throw (IllegalArgumentException.
+               (str (:path path) " is not a directory"))))))
+
 
 (defmethod cetl-list-file :list-dirs
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
-    (assoc path :result
-                (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path path)
-                              next-command
-                              command))
-                       :out) #"\n"))))
+    (if (dir-exists? (:path path))
+      (assoc path :result
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      (throw (IllegalArgumentException.
+               (str (:path path) " is not a directory"))))))
+
 
 (defmethod cetl-list-file :list-dirs-sub-dirs
   [path]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d "
         next-command ";"]
-    (assoc path :result
-                (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path path)
-                              next-command
-                              command))
-                       :out) #"\n"))))
+    (if (dir-exists? (:path path))
+      (assoc path :result
+                  (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str move-to-dir (:path path)
+                                next-command
+                                command))
+                         :out) #"\n"))
+      (throw (IllegalArgumentException.
+               (str (:path path) " is not a directory"))))))
+
 
 (defmethod cetl-list-file :files-only-sub-dirs
   ;TODO implement
@@ -220,6 +236,10 @@
                                    file-size
                                    modified-time-millis
                                    modified-time-str))))))
+
+
+
+
 
 
 
