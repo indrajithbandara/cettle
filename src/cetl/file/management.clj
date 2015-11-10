@@ -9,7 +9,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO add error handling for delete-file and file-properties
+;TODO add error handling for delete-file and file-properties and encode funcs
 
 ;==============================================================================================
 
