@@ -9,7 +9,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO add error handling for cases input paths or output paths are not present and add as in list-file funcs
+;TODO add error handling for delete-file and file-properties
 
 ;==============================================================================================
 
@@ -162,36 +162,49 @@
 
 ;=================================================================================================
 
+(defmulti cetl-create-temp-file (fn [x] (:exec x)))
 
-(defn cetl-create-temp-file
+(defmethod cetl-create-temp-file :create-temp-file
   [x]
   (let [file (:file x)
         path (:path x)
-        exec (:exec x)
         full-path (str (:path x) "/" (:file x))]
-    (if (= exec :create-temp-file)
+    (if (dir-exists? path)
       (do
         (io/writer
           (io/file
             (str path "/" file)))
-        (assoc x :result (vector full-path))))))
+        (assoc x :result (vector full-path)))
+      (throw (IllegalArgumentException. (str path " is not a directory"))))))
 
 ;================================================================================================
 
-(defn cetl-copy-file
+(defmulti cetl-copy-file (fn [x] (:exec x)))
+
+(defmethod cetl-copy-file :copy-file
   [x]
   (let [file (:file x)
         in-path (:in-path x)
         out-path (:out-path x)
-        exec (:exec x)
         full-in-path (str (:in-path x) "/" (:file x))]
-    (if (and (= exec :copy-file) (file-exists? full-in-path))
+    (cond (not (file-exists? full-in-path))
+          (throw
+            (IllegalArgumentException.
+                   (str full-in-path " file does not exist")))
+          (not (dir-exists? in-path))
+          (throw
+            (IllegalArgumentException.
+                   (str in-path " is not a directory")))
+          (not (dir-exists? out-path))
+          (throw
+            (IllegalAccessException.
+                   (str out-path " is not a directory")))
+          :else
       (do
         (io/copy
           (io/file (str in-path "/" file))
           (io/file (str out-path "/" file)))
-        (assoc x :result (vector (str full-in-path)
-                                 (str (:out-path x) "/" (:file x))))))))
+        (assoc x :result (vector (str (:out-path x) "/" (:file x))))))))
 
 ;================================================================================================
 
@@ -236,11 +249,6 @@
                                    file-size
                                    modified-time-millis
                                    modified-time-str))))))
-
-
-
-
-
 
 
 
