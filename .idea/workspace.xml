@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="380357d0-fb9c-4751-bbf3-bb7cc08291ed" name="Default" comment="adding more error handling">
+    <list default="true" id="380357d0-fb9c-4751-bbf3-bb7cc08291ed" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.nrepl-port" afterPath="$PROJECT_DIR$/.nrepl-port" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cetl/utils/component_utils.clj" afterPath="$PROJECT_DIR$/src/cetl/utils/component_utils.clj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/cetl/core_test.clj" afterPath="$PROJECT_DIR$/test/cetl/core_test.clj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cetl/file/management.clj" afterPath="$PROJECT_DIR$/src/cetl/file/management.clj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/META-INF/maven/cetl/cetl/pom.properties" afterPath="$PROJECT_DIR$/target/classes/META-INF/maven/cetl/cetl/pom.properties" />
@@ -34,8 +33,8 @@
       <file leaf-file-name="management.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5789938">
-              <caret line="41" column="25" selection-start-line="41" selection-start-column="25" selection-end-line="41" selection-end-column="25" />
+            <state vertical-scroll-proportion="0.08465608">
+              <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -154,6 +153,11 @@
             <id>UI Form Problems</id>
           </State>
         </expanded-state>
+        <selected-state>
+          <State>
+            <id>Android</id>
+          </State>
+        </selected-state>
       </profile-state>
     </entry>
   </component>
@@ -180,6 +184,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -218,16 +223,15 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="recentsLimit" value="5" />
     <property name="dynamic.classpath" value="false" />
-    <property name="FullScreen" value="true" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.completion" />
+    <property name="FullScreen" value="false" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Clojure" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="ToolWindowDocumentation.ShowToolbar" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/Downloads/tech-test/tech-test-scala" />
@@ -585,7 +589,13 @@
       <option name="project" value="LOCAL" />
       <updated>1446152164204</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="adding more error handling">
+      <created>1446938675683</created>
+      <option name="number" value="00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1446938675683</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -609,7 +619,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21319444" sideWeight="0.41015625" order="14" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2125" sideWeight="0.41015625" order="14" side_tool="false" content_ui="combo" />
       <window_info id="REPL" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.47578126" sideWeight="0.86041665" order="9" side_tool="true" content_ui="tabs" x="0" y="23" width="2560" height="1374" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.50039065" sideWeight="0.13958333" order="10" side_tool="false" content_ui="tabs" x="100" y="100" width="2360" height="1240" />
@@ -695,23 +705,19 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test/cetl/core_test.clj">
+    <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
-          <folding>
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(ns cetl.core-test ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-create-temp-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-copy-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-delete-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-file-properties ...)" />
-          </folding>
+          <caret line="86" column="16" selection-start-line="86" selection-start-column="16" selection-end-line="86" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="25" selection-start-line="41" selection-start-column="25" selection-end-line="41" selection-end-column="25" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -719,19 +725,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
-          <folding>
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(ns cetl.core-test ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-create-temp-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-copy-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-delete-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-file-properties ...)" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/cetl/core_test.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -935,38 +935,33 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.2">
           <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding>
-            <marker date="1446931172000" expanded="true" signature="-1:-1" placeholder="(ns cetl.utils.component-utils ...)" />
-            <marker date="1446931172000" expanded="true" signature="-1:-1" placeholder="(defn file-exists? ...)" />
-            <marker date="1446931172000" expanded="true" signature="-1:-1" placeholder="(defn dir-exists? ...)" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/cetl/core_test.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.11111111">
-          <caret line="10" column="40" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.37777779">
+          <caret line="34" column="36" selection-start-line="34" selection-start-column="36" selection-end-line="34" selection-end-column="36" />
           <folding>
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(ns cetl.core-test ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-create-temp-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-copy-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-delete-file ...)" />
-            <marker date="1446932103000" expanded="true" signature="-1:-1" placeholder="(cetl-file-properties ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(ns cetl.core-test ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-list-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-archive-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-create-temp-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-copy-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-delete-file ...)" />
+            <marker date="1447196024000" expanded="true" signature="-1:-1" placeholder="(cetl-file-properties ...)" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5789938">
-          <caret line="41" column="25" selection-start-line="41" selection-start-column="25" selection-end-line="41" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.08465608">
+          <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
           <folding />
         </state>
       </provider>
