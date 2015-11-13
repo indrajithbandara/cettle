@@ -20,18 +20,18 @@
 ;=====================================================================
 
 (cetl-archive-file {:path "/Users/gregadebesin/Development/Cetl"
-                    :file "archive"
+                    :file "foo"
                     :exec :zip-file})
 
 (cetl-archive-file {:path "/Users/gregadebesin/Development/Cetl"
-                    :file "archive"
+                    :file "foo"
                     :exec :gzip-file})
 
 (cetl-create-temp-file {:path "/Users/gregadebesin/Development"
                         :file "foo.tmp"
                         :exec :create-temp-file})
 
-(cetl-copy-file {:in-path "/Users/gregadebesin/Development"
+(cetl-copy-file {:in-path "/Users/gregaebesin/Development"
                  :out-path "/Users/gregadebesin"
                  :file "foo.tmp"
                  :exec :copy-file})
