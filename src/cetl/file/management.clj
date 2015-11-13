@@ -4,13 +4,12 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
-           (java.io File)
+           (java.io File FileNotFoundException)
            (java.text SimpleDateFormat)))
 
 (use '[clojure.java.shell :only [sh]])
 
 ;TODO add error handling for delete-file and file-properties and encode funcs
-;Change multi methods to defrecords
 
 ;==============================================================================================
 
@@ -108,15 +107,21 @@
         next-command ";"
         file-ext ".zip"
         path (:path x)
-        file (:file x)]
-    (clojure.java.shell/sh
-      "sh" "-c"
-      (str move-to-dir (File. path) next-command
-           zip-command (str file file-ext)
-           rec-command file))
-    (assoc x :result
-             (vector
-               (str (:path x) "/" (:file x) file-ext)))))
+        file (:file x)
+        file-path (str path "/" file)]
+    (if (or (file-exists? file-path) (dir-exists? path))
+      (do
+        (clojure.java.shell/sh
+          "sh" "-c"
+          (str move-to-dir (File. path) next-command
+               zip-command (str file file-ext)
+               rec-command file))
+        (assoc x :result
+                 (vector
+                   (str file-path file-ext))))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))))))
 
 (defmethod cetl-archive-file :gzip-file
   [x]
@@ -125,13 +130,20 @@
         next-command ";"
         file-ext ".tar.gz"
         path (:path x)
-        file (:file x)]
-    (clojure.java.shell/sh
-      "sh" "-c"
-      (str move-to-dir  (File. path) next-command
-           gzip-command (str file file-ext" "file)))
-    (assoc x :result
-             (vector (str (:path x) "/" (:file x) file-ext)))))
+        file (:file x)
+        file-path (str path "/" file)]
+    (if (or (file-exists? file-path)  (dir-exists? path))
+      (do
+        (clojure.java.shell/sh
+          "sh" "-c"
+          (str move-to-dir (File. path) next-command
+               gzip-command (str file file-ext " " file)))
+        (assoc x :result
+                 (vector
+                   (str file-path file-ext))))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))))))
 
 ;=================================================================================================
 
@@ -191,21 +203,17 @@
     (cond (not (file-exists? full-in-path))
           (throw
             (IllegalArgumentException.
-                   (str full-in-path " file does not exist")))
-          (not (dir-exists? in-path))
-          (throw
-            (IllegalArgumentException.
-                   (str in-path " is not a directory")))
+              (str full-in-path " is not a file (or directory)")))
           (not (dir-exists? out-path))
           (throw
-            (IllegalAccessException.
-                   (str out-path " is not a directory")))
+            (IllegalArgumentException.
+              (str out-path " is not a directory")))
           :else
-      (do
-        (io/copy
-          (io/file (str in-path "/" file))
-          (io/file (str out-path "/" file)))
-        (assoc x :result (vector (str (:out-path x) "/" (:file x))))))))
+          (do
+            (io/copy
+              (io/file (str in-path "/" file))
+              (io/file (str out-path "/" file)))
+            (assoc x :result (vector (str (:out-path x) "/" (:file x))))))))
 
 ;================================================================================================
 
