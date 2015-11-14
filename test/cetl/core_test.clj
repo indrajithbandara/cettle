@@ -37,11 +37,14 @@
                  :exec :copy-file})
 
 (cetl-delete-file {:path "/Users/gregadebesin/Development"
-                   :file "foo.tmp"
+                   :file "untitled.txt"
                    :exec :delete-file})
 
-(cetl-file-properties {:path "/Users/gregadebesin/Development/datomic-code.txt"
+(cetl-properties-file {:path "/Users/gregadebesin/Development/datomic-code.txt"
                        :exec :file-properties})
+
+(cetl-encode-file {:path "/Users/gregadebesin/Development/untitled.txt"
+                   :exec :ISO-8859-1})
 
 
 

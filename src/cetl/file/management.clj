@@ -4,12 +4,10 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
-           (java.io File FileNotFoundException)
+           (java.io File)
            (java.text SimpleDateFormat)))
 
 (use '[clojure.java.shell :only [sh]])
-
-;TODO add error handling for delete-file and file-properties and encode funcs
 
 ;==============================================================================================
 
@@ -29,7 +27,8 @@
                                 next-command
                                 command))
                          :out) #"\n"))
-      (throw (IllegalArgumentException.
+      (throw
+        (IllegalArgumentException.
                (str (:path path) " is not a directory"))))))
 
 
@@ -47,7 +46,8 @@
                                 next-command
                                 command))
                          :out) #"\n"))
-      (throw (IllegalArgumentException.
+      (throw
+        (IllegalArgumentException.
                (str (:path path) " is not a directory"))))))
 
 
@@ -65,7 +65,8 @@
                                 next-command
                                 command))
                          :out) #"\n"))
-      (throw (IllegalArgumentException.
+      (throw
+        (IllegalArgumentException.
                (str (:path path) " is not a directory"))))))
 
 
@@ -83,7 +84,8 @@
                                 next-command
                                 command))
                          :out) #"\n"))
-      (throw (IllegalArgumentException.
+      (throw
+        (IllegalArgumentException.
                (str (:path path) " is not a directory"))))))
 
 
@@ -150,27 +152,39 @@
 
 (defmulti cetl-encode-file (fn [x] (:exec x)))
 
-(defmethod cetl-encode-file :encode-file-ISO-8859-1
+(defmethod cetl-encode-file :ISO-8859-1
   [x]
   (let [file (:file x)
         path (:path x)
         file-path (str path "/" file)]
-    (FileUtils/write
-      (File. file-path)
-      (FileUtils/readFileToString
-        (File. file-path) "UTF-8") "ISO-8859-1"))
-  (assoc x :result (vector (str (:path x) "/" (:file x)))))
+    (if (file-exists? file-path)
+      (do
+        (FileUtils/write
+          (File. file-path)
+          (FileUtils/readFileToString
+            (File. file-path) "UTF-8") "ISO-8859-1")
+        (assoc x :result
+                 (vector (str (:path x) "/" (:file x)))))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))))))
 
-(defmethod cetl-encode-file :encode-file-UTF-8
+(defmethod cetl-encode-file :UTF-8
   [x]
   (let [file (:file x)
         path (:path x)
         file-path (str path "/" file)]
-    (FileUtils/write
-      (File. file-path)
-      (FileUtils/readFileToString
-        (File. file-path) "ISO-8859-1") "UTF-8"))
-  (assoc x :result (vector (str (:path x) "/" (:file x)))))
+    (if (file-exists? file-path)
+      (do
+        (FileUtils/write
+          (File. file-path)
+          (FileUtils/readFileToString
+            (File. file-path) "ISO-8859-1") "UTF-8")
+        (assoc x :result
+                 (vector (str (:path x) "/" (:file x)))))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))))))
 
 
 ;=================================================================================================
@@ -188,7 +202,9 @@
           (io/file
             (str path "/" file)))
         (assoc x :result (vector full-path)))
-      (throw (IllegalArgumentException. (str path " is not a directory"))))))
+      (throw
+        (IllegalArgumentException.
+          (str path " is not a directory"))))))
 
 ;================================================================================================
 
@@ -213,26 +229,32 @@
             (io/copy
               (io/file (str in-path "/" file))
               (io/file (str out-path "/" file)))
-            (assoc x :result (vector (str (:out-path x) "/" (:file x))))))))
+            (assoc x :result
+                     (vector (str (:out-path x) "/" (:file x))))))))
 
 ;================================================================================================
 
-(defn cetl-delete-file
+(defmulti cetl-delete-file (fn [x] (:exec x)))
+
+(defmethod cetl-delete-file :delete-file
   [x]
   (let [file (:file x)
         path (:path x)
-        exec (:exec x)]
-    (if (= exec :delete-file)
+        file-path (str path "/" file)]
+    (if (file-exists? file-path)
       (do
         (io/delete-file
           (io/file
             (str path "/" file)))
-        (assoc x :result (vector (str (:path x) "/" (:file x))))))))
+        (assoc x :result (vector (str (:path x) "/" (:file x)))))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))))))
 
 ;================================================================================================
 
 
-(defn cetl-file-properties
+(defn cetl-properties-file
   [x]
   (let [file (File. (:path x))
         abs-file-path (.getAbsolutePath file)
