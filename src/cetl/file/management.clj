@@ -9,9 +9,11 @@
 
 (use '[clojure.java.shell :only [sh]])
 
+;TODO change file-exists? util func to take a java.io.File instead of string path.. alter funcs as needed
+
 ;==============================================================================================
 
-(defmulti cetl-list-file (fn [x] (:exec x)))
+(defmulti cetl-list-file {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-list-file :list-dirs-files
   [path]
@@ -99,7 +101,7 @@
 
 ;=================================================================================================
 
-(defmulti cetl-archive-file (fn [x] (:exec x)))
+(defmulti cetl-archive-file  {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-archive-file :zip-file
   [x]
@@ -150,7 +152,7 @@
 ;=================================================================================================
 
 
-(defmulti cetl-encode-file (fn [x] (:exec x)))
+(defmulti cetl-encode-file {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-encode-file :ISO-8859-1
   [x]
@@ -189,7 +191,7 @@
 
 ;=================================================================================================
 
-(defmulti cetl-create-temp-file (fn [x] (:exec x)))
+(defmulti cetl-create-temp-file {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-create-temp-file :create-temp-file
   [x]
@@ -208,7 +210,7 @@
 
 ;================================================================================================
 
-(defmulti cetl-copy-file (fn [x] (:exec x)))
+(defmulti cetl-copy-file {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-copy-file :copy-file
   [x]
@@ -234,7 +236,7 @@
 
 ;================================================================================================
 
-(defmulti cetl-delete-file (fn [x] (:exec x)))
+(defmulti cetl-delete-file {:arglists '([map])} (fn [x] (:exec x)))
 
 (defmethod cetl-delete-file :delete-file
   [x]
@@ -252,11 +254,11 @@
           (str file-path " is not a file (or a directory)"))))))
 
 ;================================================================================================
+(defmulti cetl-properties-file {:arglists '([map])} (fn [x] (:exec x)))
 
-
-(defn cetl-properties-file
+(defmethod cetl-properties-file :file-properties
   [x]
-  (let [file (File. (:path x))
+  (let [file (File. (str (:path x) "/" (:file x)))
         abs-file-path (.getAbsolutePath file)
         parent-dir (.getParent file)
         file-name (.getName file)
@@ -270,7 +272,7 @@
         modified-time-millis (.lastModified file)
         modified-time-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)
         exec (:exec x)]
-    (if (= exec :file-properties)
+    (if (.isFile file)
       (do (assoc x :result (vector abs-file-path
                                    parent-dir
                                    file-name
@@ -279,4 +281,7 @@
                                    execute-permissions
                                    file-size
                                    modified-time-millis
-                                   modified-time-str))))))
+                                   modified-time-str)))
+      (throw
+        (IllegalArgumentException.
+          (str file " is not a file (or a directory)"))))))
