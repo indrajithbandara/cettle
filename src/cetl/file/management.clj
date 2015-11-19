@@ -9,7 +9,7 @@
 
 (use '[clojure.java.shell :only [sh]])
 
-;TODO change file-exists? util func to take a java.io.File instead of string path.. alter funcs as needed
+;TODO change vector return to map as in cetl-list-file
 
 ;==============================================================================================
 
@@ -21,17 +21,17 @@
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
     (if (dir-exists? (:path path))
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
+      (assoc path
+        :result {:path (s/split
+                         (get (clojure.java.shell/sh
+                                "sh" "-c"
+                                (str move-to-dir (:path path)
+                                     next-command
+                                     command))
+                                  :out) #"\n")})
       (throw
         (IllegalArgumentException.
-               (str (:path path) " is not a directory"))))))
+          (str (:path path) " is not a directory"))))))
 
 
 (defmethod cetl-list-file :list-files
@@ -272,7 +272,7 @@
         modified-time-millis (.lastModified file)
         modified-time-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)
         exec (:exec x)]
-    (if (.isFile file)
+    (if (file-exists? (.getAbsolutePath file))
       (do (assoc x :result (vector abs-file-path
                                    parent-dir
                                    file-name
