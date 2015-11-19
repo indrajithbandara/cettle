@@ -31,7 +31,7 @@
                         :file "foo.tmp"
                         :exec :create-temp-file})
 
-(cetl-copy-file {:in-path "/Users/gregaebesin/Development"
+(cetl-copy-file {:in-path "/Users/gregadebesin/Development"
                  :out-path "/Users/gregadebesin"
                  :file "foo.tmp"
                  :exec :copy-file})
@@ -40,7 +40,8 @@
                    :file "untitled.txt"
                    :exec :delete-file})
 
-(cetl-properties-file {:path "/Users/gregadebesin/Development/datomic-code.txt"
+(cetl-properties-file {:path "/Users/grgadebesin/Development"
+                       :file "foo.tmp"
                        :exec :file-properties})
 
 (cetl-encode-file {:path "/Users/gregadebesin/Development/untitled.txt"
