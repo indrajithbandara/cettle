@@ -8,7 +8,7 @@
 (cetl-list-file {:path "/Users/gregadebesin/Development"
                  :exec :list-fils})
 
-(cetl-list-file {:path "/Users/gregadebesin/Developmen"
+(cetl-list-file {:path "/Users/gregadebesin/Development"
                  :exec :list-dirs-files})
 
 (cetl-list-file {:path "/Users/gregadebesin/Development"
@@ -40,7 +40,7 @@
                    :file "untitled.txt"
                    :exec :delete-file})
 
-(cetl-properties-file {:path "/Users/grgadebesin/Development"
+(cetl-properties-file {:path "/Users/gregadebesin/Development"
                        :file "foo.tmp"
                        :exec :file-properties})
 
