@@ -6,89 +6,83 @@
   (:import (org.apache.commons.io FileUtils)
            (java.io File)
            (java.text SimpleDateFormat)))
-
 (use '[clojure.java.shell :only [sh]])
 
-;TODO change vector return to map as in cetl-list-file
+;TODO change file-exists? to take File. object instead of str
 
-;==============================================================================================
-
-(defmulti cetl-list-file {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-list-file {:arglists '([map])}
+          (fn [x] (:exec x)))
 
 (defmethod cetl-list-file :list-dirs-files
-  [path]
+  [x]
   (let [move-to-dir " cd "
         command " find `pwd` -maxdepth 1 "
         next-command ";"]
-    (if (dir-exists? (:path path))
-      (assoc path
-        :result {:path (s/split
-                         (get (clojure.java.shell/sh
-                                "sh" "-c"
-                                (str move-to-dir (:path path)
-                                     next-command
-                                     command))
-                                  :out) #"\n")})
+    (if (dir-exists? (:path x))
+      (assoc x
+        :result (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path x)
+                              next-command
+                              command)) :out) #"\n"))
       (throw
         (IllegalArgumentException.
-          (str (:path path) " is not a directory"))))))
+          (str (:path x) " is not a directory"))))))
 
 
 (defmethod cetl-list-file :list-files
-  [path]
+  [x]
   (let [move-to-dir " cd "
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
-    (if (dir-exists? (:path path))
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
+    (if (dir-exists? (:path x))
+      (assoc x
+        :result (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path x)
+                              next-command
+                              command)) :out) #"\n"))
       (throw
         (IllegalArgumentException.
-               (str (:path path) " is not a directory"))))))
+               (str (:path x) " is not a directory"))))))
 
 
 (defmethod cetl-list-file :list-dirs
-  [path]
+  [x]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
-    (if (dir-exists? (:path path))
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
+    (if (dir-exists? (:path x))
+      (assoc x
+        :result (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path x)
+                              next-command
+                              command)) :out) #"\n"))
       (throw
         (IllegalArgumentException.
-               (str (:path path) " is not a directory"))))))
+               (str (:path x) " is not a directory"))))))
 
 
 (defmethod cetl-list-file :list-dirs-sub-dirs
-  [path]
+  [x]
   (let [move-to-dir " cd "
         command  " find `pwd` -type d "
         next-command ";"]
-    (if (dir-exists? (:path path))
-      (assoc path :result
-                  (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str move-to-dir (:path path)
-                                next-command
-                                command))
-                         :out) #"\n"))
+    (if (dir-exists? (:path x))
+      (assoc x
+        :result (s/split
+                  (get (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str move-to-dir (:path x)
+                              next-command
+                              command)) :out) #"\n"))
       (throw
         (IllegalArgumentException.
-               (str (:path path) " is not a directory"))))))
+               (str (:path x) " is not a directory"))))))
 
 
 (defmethod cetl-list-file :files-only-sub-dirs
@@ -99,9 +93,10 @@
 #_(defn cetl-file-unarchive
     [path in out & {:keys []}])
 
-;=================================================================================================
 
-(defmulti cetl-archive-file  {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-archive-file  {:arglists '([map])}
+          (fn [x] (:exec x)))
+
 
 (defmethod cetl-archive-file :zip-file
   [x]
@@ -120,12 +115,12 @@
           (str move-to-dir (File. path) next-command
                zip-command (str file file-ext)
                rec-command file))
-        (assoc x :result
-                 (vector
-                   (str file-path file-ext))))
+        (assoc x
+          :result (str file-path file-ext)))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
+
 
 (defmethod cetl-archive-file :gzip-file
   [x]
@@ -136,23 +131,21 @@
         path (:path x)
         file (:file x)
         file-path (str path "/" file)]
-    (if (or (file-exists? file-path)  (dir-exists? path))
+    (if (or (file-exists? file-path) (dir-exists? path))
       (do
         (clojure.java.shell/sh
           "sh" "-c"
           (str move-to-dir (File. path) next-command
                gzip-command (str file file-ext " " file)))
-        (assoc x :result
-                 (vector
-                   (str file-path file-ext))))
+        (assoc x
+          :result (str file-path file-ext)))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
 
-;=================================================================================================
 
-
-(defmulti cetl-encode-file {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-encode-file {:arglists '([map])}
+          (fn [x] (:exec x)))
 
 (defmethod cetl-encode-file :ISO-8859-1
   [x]
@@ -165,11 +158,12 @@
           (File. file-path)
           (FileUtils/readFileToString
             (File. file-path) "UTF-8") "ISO-8859-1")
-        (assoc x :result
-                 (vector (str (:path x) "/" (:file x)))))
+        (assoc x
+          :result (str (:path x) "/" (:file x))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
+
 
 (defmethod cetl-encode-file :UTF-8
   [x]
@@ -182,16 +176,15 @@
           (File. file-path)
           (FileUtils/readFileToString
             (File. file-path) "ISO-8859-1") "UTF-8")
-        (assoc x :result
-                 (vector (str (:path x) "/" (:file x)))))
+        (assoc x
+          :result (str (:path x) "/" (:file x))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
 
 
-;=================================================================================================
-
-(defmulti cetl-create-temp-file {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-create-temp-file {:arglists '([map])}
+          (fn [x] (:exec x)))
 
 (defmethod cetl-create-temp-file :create-temp-file
   [x]
@@ -203,14 +196,15 @@
         (io/writer
           (io/file
             (str path "/" file)))
-        (assoc x :result (vector full-path)))
+        (assoc x
+          :result full-path))
       (throw
         (IllegalArgumentException.
           (str path " is not a directory"))))))
 
-;================================================================================================
 
-(defmulti cetl-copy-file {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-copy-file {:arglists '([map])}
+          (fn [x] (:exec x)))
 
 (defmethod cetl-copy-file :copy-file
   [x]
@@ -232,11 +226,11 @@
               (io/file (str in-path "/" file))
               (io/file (str out-path "/" file)))
             (assoc x :result
-                     (vector (str (:out-path x) "/" (:file x))))))))
+                     (str (:out-path x) "/" (:file x)))))))
 
-;================================================================================================
 
-(defmulti cetl-delete-file {:arglists '([map])} (fn [x] (:exec x)))
+(defmulti cetl-delete-file {:arglists '([map])}
+          (fn [x] (:exec x)))
 
 (defmethod cetl-delete-file :delete-file
   [x]
@@ -248,15 +242,17 @@
         (io/delete-file
           (io/file
             (str path "/" file)))
-        (assoc x :result (vector (str (:path x) "/" (:file x)))))
+        (assoc x
+          :result (str (:path x) "/" (:file x))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
 
-;================================================================================================
-(defmulti cetl-properties-file {:arglists '([map])} (fn [x] (:exec x)))
 
-(defmethod cetl-properties-file :file-properties
+(defmulti cetl-properties-file {:arglists '([map])}
+          (fn [x] (:exec x)))
+
+(defmethod cetl-properties-file :properties-file
   [x]
   (let [file (File. (str (:path x) "/" (:file x)))
         abs-file-path (.getAbsolutePath file)
@@ -273,15 +269,49 @@
         modified-time-str (.format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS") modified-time-millis)
         exec (:exec x)]
     (if (file-exists? (.getAbsolutePath file))
-      (do (assoc x :result (vector abs-file-path
-                                   parent-dir
-                                   file-name
-                                   read-permissions
-                                   write-permissions
-                                   execute-permissions
-                                   file-size
-                                   modified-time-millis
-                                   modified-time-str)))
+      (do (assoc x :result {:abs-file-path abs-file-path
+                            :parent-dir parent-dir
+                            :file-name file-name
+                            :read-permissions read-permissions
+                            :write-permissions write-permissions
+                            :execute-permissions execute-permissions
+                            :file-size file-size
+                            :modified-time-millis modified-time-millis
+                            :modified-time-str modified-time-str}))
       (throw
         (IllegalArgumentException.
           (str file " is not a file (or a directory)"))))))
+
+;===========================================================================================
+
+
+(defmulti cetl-compare-file {:argslist '([map])}
+          (fn [x] (:exec x)))
+
+(defmethod cetl-compare-file :compare-file
+  [x]
+  (let [file-one (:file-one x)
+        path-one (:path-one x)
+        file-path-one (File. (str path-one "/" file-one))
+        file-two (:file-two x)
+        path-two (:path-two x)
+        file-path-two (File. (str path-two "/" file-two))]
+    (cond
+      (not (file-exists?
+             (.getAbsolutePath file-path-one)))
+          (throw
+            (IllegalArgumentException.
+              (str file-path-one
+                   " is not a file (or a directory)")))
+          (not (file-exists?
+                 (.getAbsolutePath file-path-two)))
+          (throw
+            (IllegalArgumentException.
+              (str file-path-two
+                   " is not a file (or a directory)")))
+      :else (assoc x :result (FileUtils/contentEquals file-path-one file-path-two)))))
+
+
+
+
+
