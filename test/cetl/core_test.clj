@@ -6,7 +6,7 @@
 
 
 (cetl-list-file {:path "/Users/gregadebesin/Development"
-                 :exec :list-fils})
+                 :exec :list-files})
 
 (cetl-list-file {:path "/Users/gregadebesin/Development"
                  :exec :list-dirs-files})
@@ -48,6 +48,8 @@
                    :exec :ISO-8859-1})
 
 
-
-
-
+(cetl-compare-file {:file-one "foo.txt"
+                    :path-one "/Users/gregadebesin/Development"
+                    :file-two "bar.txt"
+                    :path-two "/Users/gregadebesin/Development"
+                    :exec :compare-file})
