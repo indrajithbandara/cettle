@@ -8,7 +8,6 @@
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
-;TODO change file-exists? to take File. object instead of str
 
 (defmulti cetl-list-file {:arglists '([map])}
           (fn [x] (:exec x)))
@@ -313,5 +312,15 @@
 
 
 
+(defmulti cetl-count-row-file {:argslist '([map])}
+          (fn [x] (:exec x)))
+
+(defn cetl-count-row-file
+  [x]
+  (let [line-num-reader (LineNumberReader.
+                          (FileReader.
+                            (File. x)))]
+    (do (.skip line-num-reader Long/MAX_VALUE)
+        (+ 1 (.getLineNumber line-num-reader)))))
 
 
