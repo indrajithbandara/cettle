@@ -4,7 +4,7 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
-           (java.io File)
+           (java.io File LineNumberReader FileReader)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
@@ -153,8 +153,7 @@
         file-path (str path "/" file)]
     (if (file-exists? file-path)
       (do
-        (FileUtils/write
-          (File. file-path)
+        (FileUtils/write (File. file-path)
           (FileUtils/readFileToString
             (File. file-path) "UTF-8") "ISO-8859-1")
         (assoc x
@@ -171,12 +170,10 @@
         file-path (str path "/" file)]
     (if (file-exists? file-path)
       (do
-        (FileUtils/write
-          (File. file-path)
+        (FileUtils/write (File. file-path)
           (FileUtils/readFileToString
             (File. file-path) "ISO-8859-1") "UTF-8")
-        (assoc x
-          :result (str (:path x) "/" (:file x))))
+        (assoc x :result (str (:path x) "/" (:file x))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
@@ -192,11 +189,8 @@
         full-path (str (:path x) "/" (:file x))]
     (if (dir-exists? path)
       (do
-        (io/writer
-          (io/file
-            (str path "/" file)))
-        (assoc x
-          :result full-path))
+        (io/writer (io/file (str path "/" file)))
+        (assoc x :result full-path))
       (throw
         (IllegalArgumentException.
           (str path " is not a directory"))))))
@@ -224,8 +218,7 @@
             (io/copy
               (io/file (str in-path "/" file))
               (io/file (str out-path "/" file)))
-            (assoc x :result
-                     (str (:out-path x) "/" (:file x)))))))
+            (assoc x :result (str (:out-path x) "/" (:file x)))))))
 
 
 (defmulti cetl-delete-file {:arglists '([map])}
@@ -238,11 +231,8 @@
         file-path (str path "/" file)]
     (if (file-exists? file-path)
       (do
-        (io/delete-file
-          (io/file
-            (str path "/" file)))
-        (assoc x
-          :result (str (:path x) "/" (:file x))))
+        (io/delete-file (io/file (str path "/" file)))
+        (assoc x :result (str (:path x) "/" (:file x))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
@@ -253,7 +243,7 @@
 
 (defmethod cetl-properties-file :properties-file
   [x]
-  (let [file (File. (str (:path x) "/" (:file x)))
+  (let [file (io/file (str (:path x) "/" (:file x)))
         abs-file-path (.getAbsolutePath file)
         parent-dir (.getParent file)
         file-name (.getName file)
@@ -280,8 +270,6 @@
       (throw
         (IllegalArgumentException.
           (str file " is not a file (or a directory)"))))))
-
-;===========================================================================================
 
 
 (defmulti cetl-compare-file {:argslist '([map])}
@@ -311,16 +299,33 @@
       :else (assoc x :result (FileUtils/contentEquals file-path-one file-path-two)))))
 
 
-
 (defmulti cetl-count-row-file {:argslist '([map])}
           (fn [x] (:exec x)))
 
-(defn cetl-count-row-file
+(defmethod cetl-count-row-file :count-row-file
   [x]
-  (let [line-num-reader (LineNumberReader.
-                          (FileReader.
-                            (File. x)))]
-    (do (.skip line-num-reader Long/MAX_VALUE)
-        (+ 1 (.getLineNumber line-num-reader)))))
+  (let [file (:file x)
+        path (:path x)
+        file-path (str path "/" file)
+        line-num-reader (-> (io/file file-path) (io/reader) (LineNumberReader.))]
+    (if (file-exists? file-path)
+      (do (.skip line-num-reader Long/MAX_VALUE)
+          (+ 1 (.getLineNumber line-num-reader)))
+      (throw
+        (IllegalArgumentException.
+          (str file-path " is not a file (or a directory)"))
+        (finally
+          (.close line-num-reader))))))
 
+
+(defmulti cetl-touch-file {:argslist '([map])}
+          (fn [x] (:exec x)))
+
+(defmethod cetl-touch-file :touch-file
+  [x]
+  (let [file (:file x)
+        path (:path x)
+        file-path (str path "/" file)]
+    (if (file-exists? file-path)
+      ())))
 

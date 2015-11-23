@@ -42,7 +42,7 @@
 
 (cetl-properties-file {:path "/Users/gregadebesin/Development"
                        :file "foo.tmp"
-                       :exec :file-properties})
+                       :exec :properties-file})
 
 (cetl-encode-file {:path "/Users/gregadebesin/Development/untitled.txt"
                    :exec :ISO-8859-1})
@@ -53,3 +53,7 @@
                     :file-two "bar.txt"
                     :path-two "/Users/gregadebesin/Development"
                     :exec :compare-file})
+
+(cetl-count-row-file {:file "tennis.txt"
+                      :path "/Users/gregadebesin/Development"
+                      :exec :count-row-file})
