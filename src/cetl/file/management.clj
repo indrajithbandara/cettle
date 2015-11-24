@@ -4,10 +4,12 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
+           (java.util Date)
            (java.io File LineNumberReader FileReader)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
+;TODO move file-exists? condition to before let is initialised (performance)
 
 (defmulti cetl-list-file {:arglists '([map])}
           (fn [x] (:exec x)))
@@ -321,11 +323,14 @@
 (defmulti cetl-touch-file {:argslist '([map])}
           (fn [x] (:exec x)))
 
+
+
 (defmethod cetl-touch-file :touch-file
   [x]
   (let [file (:file x)
         path (:path x)
-        file-path (str path "/" file)]
+        file-path (str path "/" file)
+        format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS")
+        date (Date.)]
     (if (file-exists? file-path)
-      ())))
-
+      (.setLastModified (File. file-path) (.getTime date)))))
