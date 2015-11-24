@@ -57,3 +57,7 @@
 (cetl-count-row-file {:file "tennis.txt"
                       :path "/Users/gregadebesin/Development"
                       :exec :count-row-file})
+
+(cetl-touch-file {:file "foo.txt"
+                  :path "/Users/gregadebesin/Development"
+                  :exec :touch-file})
