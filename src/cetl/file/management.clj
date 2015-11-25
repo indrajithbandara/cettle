@@ -9,7 +9,7 @@
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
-;TODO move file-exists? condition to before let is initialised (performance)
+;TODO start designing core async process functions that can be used with the api
 
 (defmulti cetl-list-file {:arglists '([map])}
           (fn [x] (:exec x)))
