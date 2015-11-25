@@ -16,74 +16,74 @@
 
 (defmethod cetl-list-file :list-dirs-files
   [x]
-  (let [move-to-dir " cd "
-        command " find `pwd` -maxdepth 1 "
-        next-command ";"]
-    (if (dir-exists? (:path x))
+  (if (dir-exists? (:path x))
+    (let [move-to-dir " cd "
+          command " find `pwd` -maxdepth 1 "
+          next-command ";"]
       (assoc x
         :result (s/split
                   (get (clojure.java.shell/sh
                          "sh" "-c"
                          (str move-to-dir (:path x)
                               next-command
-                              command)) :out) #"\n"))
-      (throw
-        (IllegalArgumentException.
-          (str (:path x) " is not a directory"))))))
+                              command)) :out) #"\n")))
+    (throw
+      (IllegalArgumentException.
+        (str (:path x) " is not a directory")))))
 
 
 (defmethod cetl-list-file :list-files
   [x]
+  (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
         command  " find `pwd` -type f -maxdepth 1 "
         next-command ";"]
-    (if (dir-exists? (:path x))
-      (assoc x
-        :result (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path x)
-                              next-command
-                              command)) :out) #"\n"))
-      (throw
-        (IllegalArgumentException.
-               (str (:path x) " is not a directory"))))))
+    (assoc x
+      :result (s/split
+                (get (clojure.java.shell/sh
+                       "sh" "-c"
+                       (str move-to-dir (:path x)
+                            next-command
+                            command)) :out) #"\n")))
+    (throw
+      (IllegalArgumentException.
+        (str (:path x) " is not a directory")))))
 
 
 (defmethod cetl-list-file :list-dirs
   [x]
+  (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
         command  " find `pwd` -type d -maxdepth 1 "
         next-command ";"]
-    (if (dir-exists? (:path x))
-      (assoc x
-        :result (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path x)
-                              next-command
-                              command)) :out) #"\n"))
-      (throw
-        (IllegalArgumentException.
-               (str (:path x) " is not a directory"))))))
+    (assoc x
+      :result (s/split
+                (get (clojure.java.shell/sh
+                       "sh" "-c"
+                       (str move-to-dir (:path x)
+                            next-command
+                            command)) :out) #"\n")))
+    (throw
+      (IllegalArgumentException.
+        (str (:path x) " is not a directory")))))
 
 
 (defmethod cetl-list-file :list-dirs-sub-dirs
   [x]
+  (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
         command  " find `pwd` -type d "
         next-command ";"]
-    (if (dir-exists? (:path x))
-      (assoc x
-        :result (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path x)
-                              next-command
-                              command)) :out) #"\n"))
-      (throw
-        (IllegalArgumentException.
-               (str (:path x) " is not a directory"))))))
+    (assoc x
+      :result (s/split
+                (get (clojure.java.shell/sh
+                       "sh" "-c"
+                       (str move-to-dir (:path x)
+                            next-command
+                            command)) :out) #"\n")))
+    (throw
+      (IllegalArgumentException.
+        (str (:path x) " is not a directory")))))
 
 
 (defmethod cetl-list-file :files-only-sub-dirs
@@ -312,7 +312,7 @@
         line-num-reader (-> (io/file file-path) (io/reader) (LineNumberReader.))]
     (if (file-exists? file-path)
       (do (.skip line-num-reader Long/MAX_VALUE)
-          (+ 1 (.getLineNumber line-num-reader)))
+          (assoc x :result (+ 1 (.getLineNumber line-num-reader))))
       (throw
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))
@@ -323,14 +323,14 @@
 (defmulti cetl-touch-file {:argslist '([map])}
           (fn [x] (:exec x)))
 
-
-
 (defmethod cetl-touch-file :touch-file
   [x]
   (let [file (:file x)
         path (:path x)
-        file-path (str path "/" file)
-        format (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS")
-        date (Date.)]
+        file-path (str path "/" file)]
     (if (file-exists? file-path)
-      (.setLastModified (File. file-path) (.getTime date)))))
+      (assoc x :result
+               (.setLastModified (File. file-path) (.getTime (Date.))))
+      (do
+        (cetl-create-temp-file {:file file :path path :exec :create-temp-file})
+        (assoc x :result file-path)))))
