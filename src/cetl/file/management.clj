@@ -334,3 +334,25 @@
       (do
         (cetl-create-temp-file {:file file :path path :exec :create-temp-file})
         (assoc x :result file-path)))))
+      
+(defmulti cetl-gpg-encrypt-file {:argslist '([map])}
+          (fn [x] (:exec x)))
+
+(defmethod cetl-gpg-encrypt-file :gpg-encrypt-file
+  [x]
+  (if (file-exists? (str (:path x) "/" (:file x)))
+    (let [recipient (:recipient x)
+          file (:file x)
+          move-to-dir " cd "
+          command (str " gpg --recipient "recipient" --encrypt "file)
+          next-command ";"]
+      (do
+        (get (clojure.java.shell/sh
+               "sh" "-c"
+               (str move-to-dir (:path x)
+                    next-command
+                    command)) :out)
+        (assoc x :result (str (:path x) "/" (:file x) ".gpg"))))
+    (throw
+      (IllegalArgumentException.
+        (str (:path x) " is not a file (or a directory)")))))
