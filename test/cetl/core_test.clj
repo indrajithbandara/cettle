@@ -61,3 +61,8 @@
 (cetl-touch-file {:file "foo.txt"
                   :path "/Users/gregadebesin/Development"
                   :exec :touch-file})
+  
+  (cetl-gpg-encrypt-file {:file "bar.txt"
+                        :path "/Users/gregadeesin/Development"
+                        :recipient "Gregory"
+                        :exec :gpg-encrypt-file})
