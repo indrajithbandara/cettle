@@ -9,12 +9,11 @@
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
-;TODO start designing core async process functions that can be used with the api
 
-(defmulti cetl-list-file {:arglists '([map])}
+(defmulti cetl-file-management {:arglists '([map])}
           (fn [x] (:exec x)))
 
-(defmethod cetl-list-file :list-dirs-files
+(defmethod cetl-file-management :list-dirs-files
   [x]
   (if (dir-exists? (:path x))
     (let [move-to-dir " cd "
@@ -32,7 +31,7 @@
         (str (:path x) " is not a directory")))))
 
 
-(defmethod cetl-list-file :list-files
+(defmethod cetl-file-management :list-files
   [x]
   (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
@@ -50,7 +49,7 @@
         (str (:path x) " is not a directory")))))
 
 
-(defmethod cetl-list-file :list-dirs
+(defmethod cetl-file-management :list-dirs
   [x]
   (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
@@ -68,7 +67,7 @@
         (str (:path x) " is not a directory")))))
 
 
-(defmethod cetl-list-file :list-dirs-sub-dirs
+(defmethod cetl-file-management :list-dirs-sub-dirs
   [x]
   (if (dir-exists? (:path x))
   (let [move-to-dir " cd "
@@ -86,7 +85,7 @@
         (str (:path x) " is not a directory")))))
 
 
-(defmethod cetl-list-file :files-only-sub-dirs
+(defmethod cetl-file-management :files-only-sub-dirs
   ;TODO implement
   []
   )
@@ -95,35 +94,25 @@
     [path in out & {:keys []}])
 
 
-(defmulti cetl-archive-file  {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-
-(defmethod cetl-archive-file :zip-file
+(defmethod cetl-file-management :zip-file
   [x]
-  (let [move-to-dir " cd "
-        zip-command " zip "
-        rec-command " -r "
-        next-command ";"
-        file-ext ".zip"
-        path (:path x)
-        file (:file x)
-        file-path (str path "/" file)]
-    (if (or (file-exists? file-path) (dir-exists? path))
+  (if (or (file-exists? (str (:path x) "/" (:file x)))
+          (dir-exists? (:path x)))
+    (let [path (:path x)
+          file (:file x)
+          file-path (str path "/" file)]
       (do
         (clojure.java.shell/sh
           "sh" "-c"
-          (str move-to-dir (File. path) next-command
-               zip-command (str file file-ext)
-               rec-command file))
+          (str " cd " path ";" " zip " file ".zip" " -r " file))
         (assoc x
-          :result (str file-path file-ext)))
-      (throw
-        (IllegalArgumentException.
-          (str file-path " is not a file (or a directory)"))))))
+          :result (str file-path ".zip"))))
+    (throw
+      (IllegalArgumentException.
+        (str  (:path x) "/" (:file x) " is not a file (or a directory)")))))
 
 
-(defmethod cetl-archive-file :gzip-file
+(defmethod cetl-file-management :gzip-file
   [x]
   (let [move-to-dir " cd "
         gzip-command " tar -cvzf "
@@ -145,10 +134,7 @@
           (str file-path " is not a file (or a directory)"))))))
 
 
-(defmulti cetl-encode-file {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-encode-file :ISO-8859-1
+(defmethod cetl-file-management :ISO-8859-1
   [x]
   (let [file (:file x)
         path (:path x)
@@ -165,7 +151,7 @@
           (str file-path " is not a file (or a directory)"))))))
 
 
-(defmethod cetl-encode-file :UTF-8
+(defmethod cetl-file-management :UTF-8
   [x]
   (let [file (:file x)
         path (:path x)
@@ -181,10 +167,7 @@
           (str file-path " is not a file (or a directory)"))))))
 
 
-(defmulti cetl-create-temp-file {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-create-temp-file :create-temp-file
+(defmethod cetl-file-management :create-temp-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -197,11 +180,7 @@
         (IllegalArgumentException.
           (str path " is not a directory"))))))
 
-
-(defmulti cetl-copy-file {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-copy-file :copy-file
+(defmethod cetl-file-management :copy-file
   [x]
   (let [file (:file x)
         in-path (:in-path x)
@@ -223,10 +202,7 @@
             (assoc x :result (str (:out-path x) "/" (:file x)))))))
 
 
-(defmulti cetl-delete-file {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-delete-file :delete-file
+(defmethod cetl-file-management :delete-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -239,11 +215,7 @@
         (IllegalArgumentException.
           (str file-path " is not a file (or a directory)"))))))
 
-
-(defmulti cetl-properties-file {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-properties-file :properties-file
+(defmethod cetl-file-management :properties-file
   [x]
   (let [file (io/file (str (:path x) "/" (:file x)))
         abs-file-path (.getAbsolutePath file)
@@ -273,11 +245,7 @@
         (IllegalArgumentException.
           (str file " is not a file (or a directory)"))))))
 
-
-(defmulti cetl-compare-file {:argslist '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-compare-file :compare-file
+(defmethod cetl-file-management :compare-file
   [x]
   (let [file-one (:file-one x)
         path-one (:path-one x)
@@ -300,11 +268,7 @@
                    " is not a file (or a directory)")))
       :else (assoc x :result (FileUtils/contentEquals file-path-one file-path-two)))))
 
-
-(defmulti cetl-count-row-file {:argslist '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-count-row-file :count-row-file
+(defmethod cetl-file-management :count-row-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -319,11 +283,7 @@
         (finally
           (.close line-num-reader))))))
 
-
-(defmulti cetl-touch-file {:argslist '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-touch-file :touch-file
+(defmethod cetl-file-management :touch-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -332,13 +292,10 @@
       (assoc x :result
                (.setLastModified (File. file-path) (.getTime (Date.))))
       (do
-        (cetl-create-temp-file {:file file :path path :exec :create-temp-file})
+        (cetl-file-management {:file file :path path :exec :create-temp-file})
         (assoc x :result file-path)))))
-      
-(defmulti cetl-gpg-encrypt-file {:argslist '([map])}
-          (fn [x] (:exec x)))
 
-(defmethod cetl-gpg-encrypt-file :gpg-encrypt-file
+(defmethod cetl-file-management :gpg-encrypt-file
   [x]
   (if (file-exists? (str (:path x) "/" (:file x)))
     (let [recipient (:recipient x)
@@ -355,4 +312,4 @@
         (assoc x :result (str (:path x) "/" (:file x) ".gpg"))))
     (throw
       (IllegalArgumentException.
-        (str (:path x) " is not a file (or a directory)")))))
+        (str (:path x) "/" (:file x) " is not a file (or a directory)")))))
