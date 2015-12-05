@@ -5,10 +5,58 @@
             [cetl.utils.component-utils :refer [file-exists? dir-exists?]])
   (:import (org.apache.commons.io FileUtils)
            (java.util Date)
-           (java.io File LineNumberReader FileReader)
+           (java.io File LineNumberReader)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
+;TODO  migrate rest of functions to defprotocol implementations
+;TODO  create macro for file and dir checking to pull out noisy code form funcs (if-file (do ....))
+
+(defprotocol file-management-component
+  (zip-file [x] "Zip's a file")
+  (gzip-file [x] "Gzip's a file"))
+
+(defrecord file-management
+  [x]
+  file-management-component
+  (zip-file
+    [this]
+    (if (or (file-exists? (str (:path x) "/" (:file x)))
+            (dir-exists? (:path x)))
+      (let [path (:path x)
+            file (:file x)
+            file-path (str path "/" file)]
+        (do
+          (clojure.java.shell/sh
+            "sh" "-c"
+            (str " cd " path ";" " zip " file ".zip" " -r " file))
+          (assoc x
+            :result (str file-path ".zip")
+            :exec :zip-file)))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a file (or a directory)")))))
+
+  (gzip-file
+    [this]
+    (if (or (file-exists? (str (:path x) "/" (:file x)))
+            (dir-exists? (:path x)))
+      (let [path (:path x)
+            file (:file x)
+            file-path (str path "/" file)]
+        (do
+          (clojure.java.shell/sh
+            "sh" "-c"
+            (str " cd " path ";"
+                 " tar -cvzf " (str file ".tar.gz " file)))
+          (assoc x
+            :result (str file-path ".tar.gz")
+            :exec :gzip)))
+      (throw
+        (IllegalArgumentException.
+          (str (:file x) "/" (:path x) " is not a file (or a directory)"))))))
+
+;=====================================================================================
 
 (defmulti cetl-file-management {:arglists '([map])}
           (fn [x] (:exec x)))
@@ -92,46 +140,6 @@
 
 #_(defn cetl-file-unarchive
     [path in out & {:keys []}])
-
-
-(defmethod cetl-file-management :zip-file
-  [x]
-  (if (or (file-exists? (str (:path x) "/" (:file x)))
-          (dir-exists? (:path x)))
-    (let [path (:path x)
-          file (:file x)
-          file-path (str path "/" file)]
-      (do
-        (clojure.java.shell/sh
-          "sh" "-c"
-          (str " cd " path ";" " zip " file ".zip" " -r " file))
-        (assoc x
-          :result (str file-path ".zip"))))
-    (throw
-      (IllegalArgumentException.
-        (str  (:path x) "/" (:file x) " is not a file (or a directory)")))))
-
-
-(defmethod cetl-file-management :gzip-file
-  [x]
-  (let [move-to-dir " cd "
-        gzip-command " tar -cvzf "
-        next-command ";"
-        file-ext ".tar.gz"
-        path (:path x)
-        file (:file x)
-        file-path (str path "/" file)]
-    (if (or (file-exists? file-path) (dir-exists? path))
-      (do
-        (clojure.java.shell/sh
-          "sh" "-c"
-          (str move-to-dir (File. path) next-command
-               gzip-command (str file file-ext " " file)))
-        (assoc x
-          :result (str file-path file-ext)))
-      (throw
-        (IllegalArgumentException.
-          (str file-path " is not a file (or a directory)"))))))
 
 
 (defmethod cetl-file-management :ISO-8859-1
