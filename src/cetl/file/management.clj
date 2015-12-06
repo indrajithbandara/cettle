@@ -14,7 +14,11 @@
 
 (defprotocol file-management-component
   (zip-file [x] "Zip's a file")
-  (gzip-file [x] "Gzip's a file"))
+  (gzip-file [x] "Gzip's a file")
+  (list-dirs-files  [x] "List the directories and files of a given path")
+  (list-files [x] "List the files of a given path")
+  (list-dirs [x] "List the directories of a given path")
+  (list-dirs-sub-dirs [x] "List the dirs, inc sub-dirs of a given path"))
 
 (defrecord file-management
   [x]
@@ -54,93 +58,67 @@
             :exec :gzip)))
       (throw
         (IllegalArgumentException.
-          (str (:file x) "/" (:path x) " is not a file (or a directory)"))))))
+          (str (:file x) "/" (:path x) " is not a file (or a directory)")))))
+
+  (list-dirs-files
+    [this]
+    (if (dir-exists? (str (:path x) "/" (:file x)))
+      (let [file-path (str (:path x) "/" (:file x))]
+        (assoc x
+          :result (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str " cd " file-path ";"
+                                " find `pwd` -maxdepth 1 ")) :out) #"\n")
+          :exec :list-dirs-files))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a directory")))))
+
+  (list-files
+    [this]
+    (if (dir-exists? (str (:path x) "/" (:file x)))
+      (let [file-path (str (:path x) "/" (:file x))]
+        (assoc x
+          :result (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str " cd " file-path ";"
+                                " find `pwd` -type f -maxdepth 1 ")) :out) #"\n")
+          :exec :list-files))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a directory")))))
+
+  (list-dirs
+    [this]
+    (if (dir-exists? (str (:path x) "/" (:file x)))
+      (let [file-path (str (:path x) "/" (:file x))]
+        (assoc x
+          :result (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str " cd " file-path ";"
+                                " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 ")) :out) #"\n")))
+      (throw
+        (IllegalArgumentException.
+          (str (str (:path x) "/" (:file x)) " is not a directory")))))
+
+  (list-dirs-sub-dirs
+    [this]
+    (if (dir-exists? (str (:path x) "/" (:file x)))
+      (let [file-path (str (:path x) "/" (:file x))]
+        (assoc x
+          :result (s/split
+                    (get (clojure.java.shell/sh
+                           "sh" "-c"
+                           (str " cd " file-path ";"
+                                " find `pwd` -type d ")) :out) #"\n")))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a directory"))))))
 
 ;=====================================================================================
-
-(defmulti cetl-file-management {:arglists '([map])}
-          (fn [x] (:exec x)))
-
-(defmethod cetl-file-management :list-dirs-files
-  [x]
-  (if (dir-exists? (:path x))
-    (let [move-to-dir " cd "
-          command " find `pwd` -maxdepth 1 "
-          next-command ";"]
-      (assoc x
-        :result (s/split
-                  (get (clojure.java.shell/sh
-                         "sh" "-c"
-                         (str move-to-dir (:path x)
-                              next-command
-                              command)) :out) #"\n")))
-    (throw
-      (IllegalArgumentException.
-        (str (:path x) " is not a directory")))))
-
-
-(defmethod cetl-file-management :list-files
-  [x]
-  (if (dir-exists? (:path x))
-  (let [move-to-dir " cd "
-        command  " find `pwd` -type f -maxdepth 1 "
-        next-command ";"]
-    (assoc x
-      :result (s/split
-                (get (clojure.java.shell/sh
-                       "sh" "-c"
-                       (str move-to-dir (:path x)
-                            next-command
-                            command)) :out) #"\n")))
-    (throw
-      (IllegalArgumentException.
-        (str (:path x) " is not a directory")))))
-
-
-(defmethod cetl-file-management :list-dirs
-  [x]
-  (if (dir-exists? (:path x))
-  (let [move-to-dir " cd "
-        command  " find `pwd` -type d -maxdepth 1 "
-        next-command ";"]
-    (assoc x
-      :result (s/split
-                (get (clojure.java.shell/sh
-                       "sh" "-c"
-                       (str move-to-dir (:path x)
-                            next-command
-                            command)) :out) #"\n")))
-    (throw
-      (IllegalArgumentException.
-        (str (:path x) " is not a directory")))))
-
-
-(defmethod cetl-file-management :list-dirs-sub-dirs
-  [x]
-  (if (dir-exists? (:path x))
-  (let [move-to-dir " cd "
-        command  " find `pwd` -type d "
-        next-command ";"]
-    (assoc x
-      :result (s/split
-                (get (clojure.java.shell/sh
-                       "sh" "-c"
-                       (str move-to-dir (:path x)
-                            next-command
-                            command)) :out) #"\n")))
-    (throw
-      (IllegalArgumentException.
-        (str (:path x) " is not a directory")))))
-
-
-(defmethod cetl-file-management :files-only-sub-dirs
-  ;TODO implement
-  []
-  )
-
-#_(defn cetl-file-unarchive
-    [path in out & {:keys []}])
-
 
 (defmethod cetl-file-management :ISO-8859-1
   [x]
