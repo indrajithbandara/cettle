@@ -11,21 +11,11 @@
 
 ;TODO  migrate rest of functions to defprotocol implementations
 ;TODO  create macro for file and dir checking to pull out noisy code form funcs (if-file (do ....))
+;TODO Alter file-exists func to dynamically work with url or map
 
-(defprotocol file-management-component
-  (zip-file [x] "Zip's a file")
-  (gzip-file [x] "Gzip's a file")
-  (list-dirs-files  [x] "List the directories and files of a given path")
-  (list-files [x] "List the files of a given path")
-  (list-dirs [x] "List the directories of a given path")
-  (list-dirs-sub-dirs [x] "List the dirs, inc sub-dirs of a given path"))
-
-(defrecord file-management
-  [x]
-  file-management-component
-  (zip-file
-    [this]
-    (if (or (file-exists? (str (:path x) "/" (:file x)))
+  (defn cetl-zip-file [x]
+    [x]
+    (if (or (file-exists? x)
             (dir-exists? (:path x)))
       (let [path (:path x)
             file (:file x)
@@ -41,9 +31,10 @@
         (IllegalArgumentException.
           (str (:path x) "/" (:file x) " is not a file (or a directory)")))))
 
-  (gzip-file
-    [this]
-    (if (or (file-exists? (str (:path x) "/" (:file x)))
+
+  (defn cetl-gzip-file
+    [x]
+    (if (or (file-exists? x)
             (dir-exists? (:path x)))
       (let [path (:path x)
             file (:file x)
@@ -60,8 +51,9 @@
         (IllegalArgumentException.
           (str (:file x) "/" (:path x) " is not a file (or a directory)")))))
 
-  (list-dirs-files
-    [this]
+
+  (defn list-dirs-files
+    [x]
     (if (dir-exists? (str (:path x) "/" (:file x)))
       (let [file-path (str (:path x) "/" (:file x))]
         (assoc x
@@ -75,8 +67,9 @@
         (IllegalArgumentException.
           (str (:path x) "/" (:file x) " is not a directory")))))
 
-  (list-files
-    [this]
+
+  (defn cetl-list-files
+    [x]
     (if (dir-exists? (str (:path x) "/" (:file x)))
       (let [file-path (str (:path x) "/" (:file x))]
         (assoc x
@@ -90,8 +83,9 @@
         (IllegalArgumentException.
           (str (:path x) "/" (:file x) " is not a directory")))))
 
-  (list-dirs
-    [this]
+
+  (defn cetl-list-dirs
+    [x]
     (if (dir-exists? (str (:path x) "/" (:file x)))
       (let [file-path (str (:path x) "/" (:file x))]
         (assoc x
@@ -99,13 +93,15 @@
                     (get (clojure.java.shell/sh
                            "sh" "-c"
                            (str " cd " file-path ";"
-                                " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 ")) :out) #"\n")))
+                                " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 ")) :out) #"\n")
+          :exec :list-dirs))
       (throw
         (IllegalArgumentException.
           (str (str (:path x) "/" (:file x)) " is not a directory")))))
 
-  (list-dirs-sub-dirs
-    [this]
+
+  (defn cetl-list-dirs-sub-dirs
+    [x]
     (if (dir-exists? (str (:path x) "/" (:file x)))
       (let [file-path (str (:path x) "/" (:file x))]
         (assoc x
@@ -113,61 +109,71 @@
                     (get (clojure.java.shell/sh
                            "sh" "-c"
                            (str " cd " file-path ";"
-                                " find `pwd` -type d ")) :out) #"\n")))
+                                " find `pwd` -type d ")) :out) #"\n")
+          :exec :list-dirs-sub-dirs))
       (throw
         (IllegalArgumentException.
-          (str (:path x) "/" (:file x) " is not a directory"))))))
+          (str (:path x) "/" (:file x) " is not a directory")))))
 
-;=====================================================================================
 
-(defmethod cetl-file-management :ISO-8859-1
+  (defn cetl-encode-ISO8859-1
+    [x]
+    (if (file-exists? x)
+      (let [file-path (str (:path x) "/" (:file x))]
+        (do
+          (FileUtils/write (File. file-path)
+                           (FileUtils/readFileToString
+                             (File. file-path) "UTF-8") "ISO-8859-1")
+          (assoc x
+            :result file-path
+            :exec :encode-ISO8859-1)))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a file (or a directory)")))))
+
+
+  (defn cetl-encode-UTF-8
+    [x]
+    (if (file-exists? x)
+      (let [file (:file x)
+            path (:path x)
+            file-path (str path "/" file)]
+        (do
+          (FileUtils/write (File. file-path)
+                           (FileUtils/readFileToString
+                             (File. file-path) "ISO-8859-1") "UTF-8")
+          (assoc x :result file-path
+                   :exec :encode-UTF-8)))
+      (throw
+        (IllegalArgumentException.
+          (str (:path x) "/" (:file x) " is not a file (or a directory)")))))
+
+(defn cetl-copy-file
   [x]
   (let [file (:file x)
         path (:path x)
-        file-path (str path "/" file)]
-    (if (file-exists? file-path)
-      (do
-        (FileUtils/write (File. file-path)
-          (FileUtils/readFileToString
-            (File. file-path) "UTF-8") "ISO-8859-1")
-        (assoc x
-          :result (str (:path x) "/" (:file x))))
-      (throw
-        (IllegalArgumentException.
-          (str file-path " is not a file (or a directory)"))))))
+        full-in-path (str (first path) "/" file)
+        in-path (first path)
+        out-path (second path)]
+    (cond (not (.exists (File. full-in-path)))
+          (throw
+            (IllegalArgumentException.
+              (str full-in-path " is not a file (or directory)")))
+          (not (dir-exists? out-path))
+          (throw
+            (IllegalArgumentException.
+              (str out-path " is not a directory")))
+          :else
+          (do
+            (io/copy
+              (io/file (str in-path "/" file))
+              (io/file (str out-path "/" file)))
+            (update
+              (assoc x :result (str (second (:path x)) "/" (:file x)))
+              :path (first (:path x)))))))                  ;;TODO fix to accept first elem in vec
 
 
-
-(defmethod cetl-file-management :UTF-8
-  [x]
-  (let [file (:file x)
-        path (:path x)
-        file-path (str path "/" file)]
-    (if (file-exists? file-path)
-      (do
-        (FileUtils/write (File. file-path)
-          (FileUtils/readFileToString
-            (File. file-path) "ISO-8859-1") "UTF-8")
-        (assoc x :result (str (:path x) "/" (:file x))))
-      (throw
-        (IllegalArgumentException.
-          (str file-path " is not a file (or a directory)"))))))
-
-
-(defmethod cetl-file-management :create-temp-file
-  [x]
-  (let [file (:file x)
-        path (:path x)
-        full-path (str (:path x) "/" (:file x))]
-    (if (dir-exists? path)
-      (do
-        (io/writer (io/file (str path "/" file)))
-        (assoc x :result full-path))
-      (throw
-        (IllegalArgumentException.
-          (str path " is not a directory"))))))
-
-(defmethod cetl-file-management :copy-file
+(defn cetl-copy-file
   [x]
   (let [file (:file x)
         in-path (:in-path x)
@@ -189,7 +195,7 @@
             (assoc x :result (str (:out-path x) "/" (:file x)))))))
 
 
-(defmethod cetl-file-management :delete-file
+(defn cetl-delete-file
   [x]
   (let [file (:file x)
         path (:path x)
