@@ -5,7 +5,7 @@
 
 (defn file-exists?
   [path]
-  (let [file (File. path)]
+  (let [file (File. (str (:file path) "/" (:path path)))]
     (if (or (and (.exists file)
                  (not (.isDirectory file))))
       path)))

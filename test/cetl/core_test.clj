@@ -16,3 +16,7 @@
     (zip-file)
     (->file-management)
     (gzip-file))
+
+
+(cetl-copy-file {:file "file.txt"
+                 :path ["/Users/gra11/Development" "/Users/gra11"]})
