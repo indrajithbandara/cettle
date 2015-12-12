@@ -2,7 +2,8 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.utils.component-utils :refer [file-exists? dir-exists? file-name]])
+            [cetl.utils.component-utils :refer [file-exists? dir-exists? file-name
+                                                path-from-map parent-path]])
   (:import (org.apache.commons.io FileUtils)
            (java.util Date)
            (java.io File LineNumberReader)
@@ -17,32 +18,32 @@
 
   (defn cetl-zip-file [x]
     [x]
-    (if (file-exists? x)
-      (let [path (:path x)
+    (if (file-exists? (path-from-map x))
+      (let [path (path-from-map x)
+            file-path (parent-path path)
             file-name (file-name path)]
         (do
           (clojure.java.shell/sh
             "sh" "-c"
-            (str " cd " path ";" " zip " file-name ".zip" " -r " file-name))
+            (str " cd " file-path ";" " zip " file-name ".zip" " -r " file-name))
           (assoc x
-            :result (str path ".zip")
+            :path (str path ".zip")
             :exec :zip-file)))))
 
 
   (defn cetl-gzip-file
     [x]
-    (if (or (file-exists? x)
-            (dir-exists? x))
-      (let [path (:path x)
-            file (:file x)
-            file-path (str path "/" file)]
+    (if (file-exists? (path-from-map x))
+      (let [path (path-from-map x)
+            file-path (parent-path path)
+            file-name (file-name path)]
         (do
           (clojure.java.shell/sh
             "sh" "-c"
-            (str " cd " path ";"
-                 " tar -cvzf " (str file ".tar.gz " file)))
+            (str " cd " file-path ";"
+                 " tar -cvzf " (str file-name ".tar.gz " file-name)))
           (assoc x
-            :result (str file-path ".tar.gz")
+            :path (str path ".tar.gz")
             :exec :gzip)))))
 
 
