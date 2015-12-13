@@ -2,7 +2,8 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.utils.component-utils :refer [file-exists? dir-exists? file-name]])
+            [cetl.utils.component-utils :refer [file-exists? dir-exists? file-name
+                                                path-from-map parent-path]])
   (:import (org.apache.commons.io FileUtils)
            (java.util Date)
            (java.io File LineNumberReader)
@@ -15,35 +16,37 @@
 ;TODO remove excption from funcs as fil-exists? and dir-exists? is now dynamic
 ;TODO CHANGE :path and :file to just :path where :path contains path + file this means
 
-  (defn cetl-zip-file [x]
-    [x]
-    (if (file-exists? x)
-      (let [path (:path x)
-            file-name (file-name path)]
-        (do
-          (clojure.java.shell/sh
-            "sh" "-c"
-            (str " cd " path ";" " zip " file-name ".zip" " -r " file-name))
-          (assoc x
-            :result (str path ".zip")
-            :exec :zip-file)))))
+(defn cetl-zip-file [x]
+  [x]
+  (cond (nil? x) nil
+        (file-exists? (path-from-map x))
+        (let [path (path-from-map x)
+              file-path (parent-path path)
+              file-name (file-name path)]
+          (do
+            (clojure.java.shell/sh
+              "sh" "-c"
+              (str " cd " file-path ";" " zip " file-name ".zip" " -r " file-name))
+            (assoc x
+              :path (str path ".zip")
+              :exec :zip-file)))))
 
 
-  (defn cetl-gzip-file
-    [x]
-    (if (or (file-exists? x)
-            (dir-exists? x))
-      (let [path (:path x)
-            file (:file x)
-            file-path (str path "/" file)]
-        (do
-          (clojure.java.shell/sh
-            "sh" "-c"
-            (str " cd " path ";"
-                 " tar -cvzf " (str file ".tar.gz " file)))
-          (assoc x
-            :result (str file-path ".tar.gz")
-            :exec :gzip)))))
+(defn cetl-gzip-file
+  [x]
+  (cond (nil? x) nil
+        (file-exists? (path-from-map x))
+        (let [path (path-from-map x)
+              file-path (parent-path path)
+              file-name (file-name path)]
+          (do
+            (clojure.java.shell/sh
+              "sh" "-c"
+              (str " cd " file-path ";"
+                   " tar -cvzf " (str file-name ".tar.gz " file-name)))
+            (assoc x
+              :path (str path ".tar.gz")
+              :exec :gzip)))))
 
 
   (defn list-dirs-files

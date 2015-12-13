@@ -13,7 +13,8 @@
   (is-dir? [x] "Returns file name of a given input")
   (file-path [x] "Returns the file path of a given input")
   (abs-file-path [x] "Returns the absolute file path of a given input")
-  (abs-file [x] "Returns the absolute file of a given input"))
+  (abs-file [x] "Returns the absolute file of a given input")
+  (file-exists? [x] "Returns true or false if a file exists"))
 
 (extend-protocol
   FileLike
@@ -24,9 +25,14 @@
   (exists-file? [^File file] (.exists file))
   (is-dir? [^File file] (.isDirectory file))
   (abs-file-path [^File file] (.getAbsolutePath file))
-  (abs-file [^File file] (.getAbsoluteFile file)))
+  (abs-file [^File file] (.getAbsoluteFile file))
+  (file-exists? [^File file] (.exists file)))
 
-(defn file-exists?
+(defn path-from-map
+  [x]
+  (io/file (:path x)))
+
+(defn file-exists
   [path]
   (cond (map? path)
     (let [file (io/file (str (:path path) "/" (:file path)))]
