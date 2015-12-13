@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="380357d0-fb9c-4751-bbf3-bb7cc08291ed" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/file.txt.tar.gz" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/replstate.xml" afterPath="$PROJECT_DIR$/.idea/replstate.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.nrepl-port" afterPath="$PROJECT_DIR$/.nrepl-port" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cetl/file/management.clj" afterPath="$PROJECT_DIR$/src/cetl/file/management.clj" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cetl/utils/component_utils.clj" afterPath="$PROJECT_DIR$/src/cetl/utils/component_utils.clj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/META-INF/maven/cetl/cetl/pom.properties" afterPath="$PROJECT_DIR$/target/classes/META-INF/maven/cetl/cetl/pom.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/repl-port" afterPath="$PROJECT_DIR$/target/repl-port" />
     </list>
@@ -33,8 +33,8 @@
       <file leaf-file-name="management.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5813953">
-              <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
+            <state vertical-scroll-proportion="1.1162791">
+              <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -196,8 +196,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -790,7 +790,13 @@
       <option name="project" value="LOCAL" />
       <updated>1449951036051</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Cleanup">
+      <created>1449964303418</created>
+      <option name="number" value="00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1449964303418</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -894,7 +900,8 @@
     <MESSAGE value="cleanup" />
     <MESSAGE value="Transition to protocols" />
     <MESSAGE value="Transition to funcs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Transition to funcs" />
+    <MESSAGE value="Cleanup" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleanup" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1266,7 +1273,6 @@
           <folding>
             <marker date="1449601721000" expanded="true" signature="0:254" placeholder="(ns cetl.core-test ...)" />
             <marker date="1449601721000" expanded="true" signature="256:371" placeholder="(-&gt; ...)" />
-            <marker date="1449601721000" expanded="true" signature="374:476" placeholder="(cetl-copy-file ...)" />
           </folding>
         </state>
       </provider>
@@ -1276,20 +1282,20 @@
         <state vertical-scroll-proportion="0.44444445">
           <caret line="25" column="43" selection-start-line="25" selection-start-column="43" selection-end-line="25" selection-end-column="43" />
           <folding>
-            <marker date="1449961935000" expanded="true" signature="0:130" placeholder="(ns cetl.utils.component-utils ...)" />
-            <marker date="1449961935000" expanded="true" signature="134:697" placeholder="(defprotocol FileLike ...)" />
-            <marker date="1449961935000" expanded="true" signature="699:1109" placeholder="(extend-protocol FileLike ...)" />
-            <marker date="1449961935000" expanded="true" signature="1111:1159" placeholder="(defn path-from-map ...)" />
-            <marker date="1449961935000" expanded="true" signature="1161:1689" placeholder="(defn file-exists ...)" />
-            <marker date="1449961935000" expanded="true" signature="1692:2163" placeholder="(defn dir-exists? ...)" />
+            <marker date="1449968120000" expanded="true" signature="0:130" placeholder="(ns cetl.utils.component-utils ...)" />
+            <marker date="1449968120000" expanded="true" signature="134:697" placeholder="(defprotocol FileLike ...)" />
+            <marker date="1449968120000" expanded="true" signature="699:1109" placeholder="(extend-protocol FileLike ...)" />
+            <marker date="1449968120000" expanded="true" signature="1111:1159" placeholder="(defn path-from-map ...)" />
+            <marker date="1449968120000" expanded="true" signature="1161:1689" placeholder="(defn file-exists ...)" />
+            <marker date="1449968120000" expanded="true" signature="1692:2163" placeholder="(defn dir-exists? ...)" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cetl/file/management.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5813953">
-          <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
+        <state vertical-scroll-proportion="1.1162791">
+          <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="30" />
           <folding />
         </state>
       </provider>

@@ -16,35 +16,37 @@
 ;TODO remove excption from funcs as fil-exists? and dir-exists? is now dynamic
 ;TODO CHANGE :path and :file to just :path where :path contains path + file this means
 
-  (defn cetl-zip-file [x]
-    [x]
-    (if (file-exists? (path-from-map x))
-      (let [path (path-from-map x)
-            file-path (parent-path path)
-            file-name (file-name path)]
-        (do
-          (clojure.java.shell/sh
-            "sh" "-c"
-            (str " cd " file-path ";" " zip " file-name ".zip" " -r " file-name))
-          (assoc x
-            :path (str path ".zip")
-            :exec :zip-file)))))
+(defn cetl-zip-file [x]
+  [x]
+  (cond (nil? x) nil
+        (file-exists? (path-from-map x))
+        (let [path (path-from-map x)
+              file-path (parent-path path)
+              file-name (file-name path)]
+          (do
+            (clojure.java.shell/sh
+              "sh" "-c"
+              (str " cd " file-path ";" " zip " file-name ".zip" " -r " file-name))
+            (assoc x
+              :path (str path ".zip")
+              :exec :zip-file)))))
 
 
-  (defn cetl-gzip-file
-    [x]
-    (if (file-exists? (path-from-map x))
-      (let [path (path-from-map x)
-            file-path (parent-path path)
-            file-name (file-name path)]
-        (do
-          (clojure.java.shell/sh
-            "sh" "-c"
-            (str " cd " file-path ";"
-                 " tar -cvzf " (str file-name ".tar.gz " file-name)))
-          (assoc x
-            :path (str path ".tar.gz")
-            :exec :gzip)))))
+(defn cetl-gzip-file
+  [x]
+  (cond (nil? x) nil
+        (file-exists? (path-from-map x))
+        (let [path (path-from-map x)
+              file-path (parent-path path)
+              file-name (file-name path)]
+          (do
+            (clojure.java.shell/sh
+              "sh" "-c"
+              (str " cd " file-path ";"
+                   " tar -cvzf " (str file-name ".tar.gz " file-name)))
+            (assoc x
+              :path (str path ".tar.gz")
+              :exec :gzip)))))
 
 
   (defn list-dirs-files
