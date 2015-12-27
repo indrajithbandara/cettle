@@ -25,8 +25,6 @@
     <orderEntry type="library" name="Leiningen: com.github.rwl/JKLU:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.googlecode.netlib-java/netlib-java:0.9.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.lowagie/itext:2.1.7" level="project" />
-    <orderEntry type="library" name="Leiningen: com.sun.xml.bind/jaxb-core:2.2.11" level="project" />
-    <orderEntry type="library" name="Leiningen: com.sun.xml.bind/jaxb-impl:2.2.11" level="project" />
     <orderEntry type="library" name="Leiningen: commons-codec:1.5" level="project" />
     <orderEntry type="library" name="Leiningen: commons-io:2.4" level="project" />
     <orderEntry type="library" name="Leiningen: congomongo:0.3.3" level="project" />
@@ -55,13 +53,10 @@
     <orderEntry type="library" name="Leiningen: net.sourceforge.jtransforms/jtransforms:2.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.sourceforge.parallelcolt/optimization:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.sourceforge.parallelcolt/parallelcolt:0.10.1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.camel/camel-core:2.16.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.camel/camel-josql:2.16.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.commons/commons-compress:1.8" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.poi/poi-ooxml-schemas:3.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.poi/poi-ooxml:3.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.poi/poi:3.9" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.servicemix.bundles/org.apache.servicemix.bundles.gentlyweb-utils:1.5_1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.servicemix.bundles/org.apache.servicemix.bundles.josql:1.5_5" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.xmlbeans/xmlbeans:2.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.xmlgraphics/batik-awt-util:1.7" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.xmlgraphics/batik-css:1.7" level="project" />
@@ -90,7 +85,7 @@
     <orderEntry type="library" name="Leiningen: org.mongodb/mongo-java-driver:2.9.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.scilab.forge/jlatexmath:0.9.6" level="project" />
-    <orderEntry type="library" name="Leiningen: org.slf4j/slf4j-api:1.6.6" level="project" />
+    <orderEntry type="library" name="Leiningen: org.tukaani/xz:1.5" level="project" />
     <orderEntry type="library" name="Leiningen: slingshot:0.10.3" level="project" />
     <orderEntry type="library" name="Leiningen: stax/stax-api:1.0.1" level="project" />
     <orderEntry type="library" name="Leiningen: xalan:2.6.0" level="project" />
