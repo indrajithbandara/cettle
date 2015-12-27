@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Leiningen: org.apache.camel/camel-core:2.16.0">
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/camel/camel-core/2.16.0/camel-core-2.16.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
