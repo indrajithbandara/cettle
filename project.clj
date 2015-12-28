@@ -6,5 +6,4 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [incanter "1.5.6"]
-                 [commons-io/commons-io "2.4"]
-                 [org.apache.commons/commons-compress "1.8"]])
+                 [commons-io/commons-io "2.4"]])
