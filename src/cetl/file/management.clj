@@ -3,18 +3,16 @@
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
             [cetl.utils.file :refer [file-exists? file-name path-from-map isDir? parent-path]])
-  (:import (java.io File LineNumberReader FileOutputStream)
-           (org.apache.commons.compress.archivers.zip ZipArchiveEntry)
-           (org.apache.commons.compress.archivers.zip ZipArchiveOutputStream)
-           (org.apache.commons.compress.archivers ArchiveStreamFactory)
+  (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
-(defn check-files-exist
+(defn all-files-exist?
   ([] nil)
-  ([m] (nil? (some false?
-                   (map #(file-exists? %) (path-from-map m))))))
+  ([m] (if (nil? m) nil
+                    (nil? (some false?
+                                (map #(file-exists? %) (path-from-map m)))))))
 
 (defn zip-command
   ([] nil)
@@ -27,35 +25,35 @@
   ([] nil)
   ([f v] (assoc (empty f) :path (mapv #(str % ".zip") v) :exec :cetl-zip-file)))
 
-
 (defn cetl-zip-file
   ([] nil)
   ([m]
-   (cond (nil? m) nil
-         (check-files-exist m)
-         (let [path-from-map (path-from-map m)]
-           (build-zip-output-map
-             (zip-command path-from-map) path-from-map)))))
+   (if (all-files-exist? m)
+     (let [path-from-map (path-from-map m)]
+       (build-zip-output-map (zip-command path-from-map) path-from-map)))))
+
+;=================================================================================================
+
+(defn gzip-command
+  ([] nil)
+  ([v] (into {} (map (fn [s]
+                       (clojure.java.shell/sh
+                         "sh" "-c"
+                         (str " cd " (parent-path s) ";" " tar -cvzf " (file-name s) ".tar.gz " (file-name s)))) v))))
+
+(defn build-gzip-output-map
+  ([] nil)
+  ([f v] (assoc (empty f) :path (mapv #(str % ".tar.gz") v) :exec :cetl-gzip-file)))
+
 
 (defn cetl-gzip-file
   ([] nil)
-  ([x]
-   (cond (nil? x) nil
-         (file-exists? (path-from-map x))
-         (let [path (path-from-map x)
-               file-path (parent-path path)
-               file-name (file-name path)]
-           (do
-             (clojure.java.shell/sh
-               "sh" "-c"
-               (str " cd " file-path ";"
-                    " tar -cvzf " (str file-name ".tar.gz " file-name)))
-             (assoc x
-               :path [(str path ".tar.gz")]
-               :exec :cetl-gzip-file))))))
+  ([m]
+    (if (all-files-exist? m)
+      (let [path-from-map (path-from-map m)]
+        (build-gzip-output-map (gzip-command path-from-map) path-from-map)))))
 
-
-
+;==================================================================================================
 
   (defn cetl-list-dirs-files
     [x]
