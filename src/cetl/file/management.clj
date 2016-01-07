@@ -10,16 +10,15 @@
 
 (defn all-files-exist?
   ([] nil)
-  ([m] (if (nil? m) nil
-                    (nil? (some false?
-                                (map #(file-exists? %) (path-from-map m)))))))
+  ([m] (nil? (some false?
+               (map #(file-exists? (io/file %)) (path-from-map m))))))
 
 (defn zip-command
   ([] nil)
   ([v] (into {} (map (fn [s]
                        (clojure.java.shell/sh
                          "sh" "-c"
-                         (str " cd " (parent-path s) ";" " zip " (file-name s) ".zip" " -r " (file-name s)))) v))))
+                         (str " cd " (parent-path (io/file s)) ";" " zip " (file-name (io/file s)) ".zip" " -r " (file-name (io/file s))))) v))))
 
 (defn build-zip-output-map
   ([] nil)
@@ -39,7 +38,7 @@
   ([v] (into {} (map (fn [s]
                        (clojure.java.shell/sh
                          "sh" "-c"
-                         (str " cd " (parent-path s) ";" " tar -cvzf " (file-name s) ".tar.gz " (file-name s)))) v))))
+                         (str " cd " (parent-path (io/file s)) ";" " tar -cvzf " (file-name (io/file s)) ".tar.gz " (file-name (io/file s))))) v))))
 
 (defn build-gzip-output-map
   ([] nil)

@@ -6,38 +6,27 @@
 
 
 (defprotocol FileLike
-  (fileName [x] "Returns file name of a given input")
-  (parentPath [x] "Returns the directory name of a given input")
-  (isFile? [x] "Returns file name of a given input")
-  (fileExists? [f] "Returns file name of a given input")
-  (isDir? [x] "Returns file name of a given input")
-  (canonicalPath [x] "Returns the file path of a given input")
-  (absFilePath [x] "Returns the absolute file path of a given input")
-  (absFile [x] "Returns the absolute file of a given input"))
+  (file-name [x] "Returns file name of a given input")
+  (parent-path [x] "Returns the directory name of a given input")
+  (is-file? [x] "Returns file name of a given input")
+  (file-exists? [f] "Returns file name of a given input")
+  (is-dir? [x] "Returns file name of a given input")
+  (canonical-path [x] "Returns the file path of a given input")
+  (abs-file-path [x] "Returns the absolute file path of a given input")
+  (abs-file [x] "Returns the absolute file of a given input"))
 
 (extend-protocol
   FileLike
   File
-  (fileName [^File file] (.getName file))
-  (parentPath [^File file] (.getParent file))
-  (isFile? [^File file] (.isFile file))
-  (isDir? [^File file] (.isDirectory file))
-  (absFilePath [^File file] (.getAbsolutePath file))
-  (absFile [^File file] (.getAbsoluteFile file))
-  (fileExists? [^File file] (.exists file))
-  (canonicalPath [^File file] (.getCanonicalPath file)))
+  (file-name [^File file] (.getName file))
+  (parent-path [^File file] (.getParent file))
+  (is-file? [^File file] (.isFile file))
+  (is-dir? [^File file] (.isDirectory file))
+  (abs-filepath [^File file] (.getAbsolutePath file))
+  (abs-file [^File file] (.getAbsoluteFile file))
+  (file-exists? [^File file] (.exists file))
+  (canonical-path [^File file] (.getCanonicalPath file)))
 
-(defn file-exists?
-  ([] nil)
-  ([x] (fileExists? (io/file x))))
-
-(defn parent-path
-  ([] nil)
-  ([x] (parentPath (io/file x))))
-
-(defn file-name
-  ([] nil)
-  ([x] (fileName (io/file x))))
 
 (defn path-from-map [x] (:path x))
 
