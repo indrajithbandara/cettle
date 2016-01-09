@@ -2,7 +2,7 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.utils.file :refer [file-exists? file-name path-from-map isDir? parent-path]])
+            [cetl.utils.file :refer [file-exists? file-name path-from-map is-dir? parent-path]])
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
@@ -22,7 +22,7 @@
 
 (defn build-zip-output-map
   ([] nil)
-  ([f v] (assoc (empty f) :path (mapv #(str % ".zip") v) :exec :cetl-zip-file)))
+  ([f l] (assoc (empty f) :in (map #(str % ".zip") l) :exec :cetl-zip-file)))
 
 (defn cetl-zip-file
   ([] nil)
@@ -35,14 +35,14 @@
 
 (defn gzip-command
   ([] nil)
-  ([v] (into {} (map (fn [s]
+  ([l] (into {} (map (fn [s]
                        (clojure.java.shell/sh
                          "sh" "-c"
-                         (str " cd " (parent-path (io/file s)) ";" " tar -cvzf " (file-name (io/file s)) ".tar.gz " (file-name (io/file s))))) v))))
+                         (str " cd " (parent-path (io/file s)) ";" " tar -cvzf " (file-name (io/file s)) ".tar.gz " (file-name (io/file s))))) l))))
 
 (defn build-gzip-output-map
   ([] nil)
-  ([f v] (assoc (empty f) :path (mapv #(str % ".tar.gz") v) :exec :cetl-gzip-file)))
+  ([f l] (assoc (empty f) :in (map #(str % ".tar.gz") l) :exec :cetl-gzip-file)))
 
 
 (defn cetl-gzip-file
@@ -54,10 +54,24 @@
 
 ;==================================================================================================
 
+
+(defn list-dirs-files-command
+  ([] nil)
+  ([m]
+   (mapcat (fn [s]
+             (s/split
+               (get (clojure.java.shell/sh
+                      "sh" "-c" (str " cd " s ";" " find `pwd` -maxdepth 1 "))
+                    :out) #"\n")) (path-from-map m))))
+
+(defn cetl-list-dirs-files
+  [m]
+   {:in (list-dirs-files-command m) :exec :cetl-list-dirs-files})
+
   (defn cetl-list-dirs-files
     [x]
     (cond (nil? x) nil
-      (file-exists? (path-from-map x))
+      (file-exists? (io/file (path-from-map x)))
           (let [file-path (path-from-map x)]
             (assoc x
               :path (s/split
