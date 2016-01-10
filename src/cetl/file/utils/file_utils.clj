@@ -1,4 +1,4 @@
-(ns cetl.utils.file
+(ns cetl.utils.file-utils
   (:require [clojure.string :as s]
             [clojure.java.io :as io])
   (import [java.io File]))
@@ -28,5 +28,11 @@
   (canonical-path [^File file] (.getCanonicalPath file)))
 
 
-(defn path-from-map [x] (:path x))
+(defn in-from-map
+  ([] [])
+  ([x]
+   (condp = (keys x)
+     '(:in) (:in x)
+     '(:out) (:out x)
+     (throw (IllegalArgumentException. (str "{:in ... }  not " x " is required as key input."))))))
 
