@@ -3,7 +3,7 @@
             [cetl.core :refer :all]
             [clojure.java.io :as io]
             [cetl.file.management :refer :all]
-            [cetl.utils.file :refer [file-exists? dir-exists?]]))
+            [cetl.utils.file-utils :refer [file-exists? dir-exists?]]))
 
 (-> {:path "/Users/gra11/Development"
      :file "file.txt"

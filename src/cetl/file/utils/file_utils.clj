@@ -1,4 +1,4 @@
-(ns cetl.utils.file-utils
+(ns cetl.file.utils.file-utils
   (:require [clojure.string :as s]
             [clojure.java.io :as io])
   (import [java.io File]))
@@ -36,3 +36,7 @@
      '(:out) (:out x)
      (throw (IllegalArgumentException. (str "{:in ... }  not " x " is required as key input."))))))
 
+(defn all-files-exist?
+  ([] nil)
+  ([m] (nil? (some false?
+                   (map #(file-exists? (io/file %)) (in-from-map m))))))
