@@ -2,49 +2,44 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.file.utils.file-utils :refer [file-exists? file-name in-from-map is-dir? parent-path
-                                                all-files-exist?]]
-            [cetl.file.utils.command-utils :refer [zip-command gzip-command list-dirs-files-command build-gzip-output-map
-                                                   build-zip-output-map]])
+            [cetl.utils.u-file
+             :refer [file-exists? file-name in-map is-dir?
+                     parent-path all-files-exist?]]
+            [cetl.utils.u-compress
+             :refer [zip gzip gzip-map zip-map]]
+            [cetl.utils.u-path
+             :refer [file-dir-paths file-paths]])
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
 
-(defn cetl-zip-file
+
+(defn cetl-zip
   ([] nil)
   ([m]
    (if (all-files-exist? m)
-     (let [path-from-map (in-from-map m)]
-       (build-zip-output-map (zip-command path-from-map) path-from-map)))))
+     (let [path (in-map m)]
+       (zip-map (zip path) path)))))
 
 
-(defn cetl-gzip-file
+(defn cetl-gzip
   ([] nil)
   ([m]
     (if (all-files-exist? m)
-      (let [path-from-map (in-from-map m)]
-        (build-gzip-output-map (gzip-command path-from-map) path-from-map)))))
+      (let [path (in-map m)]
+        (gzip-map (gzip path) path)))))
 
 
-(defn cetl-list-dirs-files
+(defn cetl-list-file-dir
   [m]
-   {:out (list-dirs-files-command m) :exec :cetl-list-dirs-files})
+   {:out (file-dir-paths m) :exec :cetl-list-dirs-files})
 
 
-  (defn cetl-list-files
-    [x]
-    (cond (nil? x) nil
-      (file-exists? (path-from-map x))
-          (let [file-path (path-from-map x)]
-            (assoc x
-              :path (s/split
-                      (get (clojure.java.shell/sh
-                             "sh" "-c"
-                             (str " cd " file-path ";"
-                                  " find `pwd` -type f -maxdepth 1 ")) :out) #"\n")
-              :exec :cetl-list-files))))
+  (defn cetl-list-file
+    [m]
+    {:out (file-paths m) :exec :cetl-list-file})
 
 
   (defn cetl-list-dirs
