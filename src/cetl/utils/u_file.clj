@@ -1,4 +1,4 @@
-(ns cetl.file.utils.file-utils
+(ns cetl.utils.u-file
   (:require [clojure.string :as s]
             [clojure.java.io :as io])
   (import [java.io File]))
@@ -28,15 +28,16 @@
   (canonical-path [^File file] (.getCanonicalPath file)))
 
 
-(defn in-from-map
-  ([] [])
+(defn in-map
+  ([] nil)
   ([x]
-   (condp = (keys x)
-     '(:in) (:in x)
-     '(:out) (:out x)
-     (throw (IllegalArgumentException. (str "{:in ... }  not " x " is required as key input."))))))
+   (cond (= (keys x) '(:in))
+         (:in x)
+         (= (keys x) '(:out))
+         (:out x)
+          :else nil)))
 
 (defn all-files-exist?
   ([] nil)
   ([m] (nil? (some false?
-                   (map #(file-exists? (io/file %)) (in-from-map m))))))
+                   (map #(file-exists? (io/file %)) (in-map m))))))
