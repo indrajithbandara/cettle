@@ -4,6 +4,9 @@
   (import [java.io File]))
 
 
+(def throw-exception
+  {:in-no-map-found (IllegalArgumentException. (str "in requires a map of the form {:in ...}"))
+   :in-no-key-found (IllegalArgumentException. (str "in requires :in as key that references input"))})
 
 (defprotocol FileLike
   (file-name [x] "Returns file name of a given input")
@@ -28,16 +31,16 @@
   (canonical-path [^File file] (.getCanonicalPath file)))
 
 
-(defn in-map
-  ([] nil)
-  ([x]
-   (cond (= (keys x) '(:in))
-         (:in x)
-         (= (keys x) '(:out))
-         (:out x)
-          :else nil)))
+(defn in
+  [x]
+  (cond (false? (map? x))
+        (IllegalArgumentException.
+          (str "in requires a map of the form {:in ...}"))
+        (= (keys x) '(:in)) (:in x)
+        (= (keys x) '(:out)) (:out x)
+        :else (IllegalArgumentException.
+                (str "in requires :in as key that references input"))))
 
-(defn all-files-exist?
-  ([] nil)
-  ([m] (nil? (some false?
-                   (map #(file-exists? (io/file %)) (in-map m))))))
+(defn check-all
+  [p? f m] (nil? (some false?
+                  (map #(p? (io/file %)) (f m)))))
