@@ -41,6 +41,6 @@
         :else (IllegalArgumentException.
                 (str "in requires :in as key that references input"))))
 
-(defn check-all
+(defn check-all-file
   [p? f m] (nil? (some false?
                   (map #(p? (io/file %)) (f m)))))
