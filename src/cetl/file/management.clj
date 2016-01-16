@@ -4,7 +4,7 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.u-file
              :refer [file-exists? file-name in is-dir?
-                     parent-path check-all]]
+                     parent-path check-all-file]]
             [cetl.utils.u-compress
              :refer [zip gzip gzip-map zip-map]]
             [cetl.utils.u-path
@@ -19,7 +19,7 @@
 (defn cetl-zip
   ([] nil)
   ([m]
-   (if (check-all file-exists? in m)
+   (if (check-all-file file-exists? in m)
      (let [path (in m)]
        (zip-map (zip path) path)))))
 
@@ -27,7 +27,7 @@
 (defn cetl-gzip
   ([] nil)
   ([m]
-    (if (check-all file-exists? in m)
+    (if (check-all-file file-exists? in m)
       (let [path (in m)]
         (gzip-map (gzip path) path)))))
 
