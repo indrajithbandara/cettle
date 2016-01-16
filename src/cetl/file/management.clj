@@ -3,12 +3,12 @@
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
             [cetl.utils.u-file
-             :refer [file-exists? file-name in-map is-dir?
-                     parent-path all-files-exist?]]
+             :refer [file-exists? file-name in is-dir?
+                     parent-path check-all]]
             [cetl.utils.u-compress
              :refer [zip gzip gzip-map zip-map]]
             [cetl.utils.u-path
-             :refer [file-dir-paths file-paths]])
+             :refer [dir-path path dir]])
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
@@ -19,41 +19,32 @@
 (defn cetl-zip
   ([] nil)
   ([m]
-   (if (all-files-exist? m)
-     (let [path (in-map m)]
+   (if (check-all file-exists? in m)
+     (let [path (in m)]
        (zip-map (zip path) path)))))
 
 
 (defn cetl-gzip
   ([] nil)
   ([m]
-    (if (all-files-exist? m)
-      (let [path (in-map m)]
+    (if (check-all file-exists? in m)
+      (let [path (in m)]
         (gzip-map (gzip path) path)))))
 
 
 (defn cetl-list-file-dir
   [m]
-   {:out (file-dir-paths m) :exec :cetl-list-dirs-files})
+  {:out (dir-path in m) :exec :cetl-list-dirs-files})
 
 
   (defn cetl-list-file
     [m]
-    {:out (file-paths m) :exec :cetl-list-file})
+    {:out (path in m) :exec :cetl-list-file})
 
 
-  (defn cetl-list-dirs
-    [x]
-    (cond (nil? x) nil
-          (file-exists? (path-from-map x))
-          (let [file-path (path-from-map x)]
-            (assoc x
-              :path (s/split
-                      (get (clojure.java.shell/sh
-                             "sh" "-c"
-                             (str " cd " file-path ";"
-                                  " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 ")) :out) #"\n")
-              :exec :cetl-list-dirs))))
+(defn cetl-list-dir
+  [m]
+  {:out (dir in m) :exec :cetl-list-dir})
 
 
   (defn cetl-list-dirs-sub-dirs
