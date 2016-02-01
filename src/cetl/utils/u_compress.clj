@@ -1,8 +1,7 @@
 (ns cetl.utils.u-compress
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
-            [cetl.utils.u-file :refer [parent-path file-name in-map]]))
-
+            [cetl.utils.u-file :refer [parent-path file-name]]))
 
 (defn zip
   [l]
