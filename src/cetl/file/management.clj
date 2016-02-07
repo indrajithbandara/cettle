@@ -4,36 +4,24 @@
             [clojure.set :refer [rename-keys]]
             [cetl.utils.u-file :refer [file-exists? file-name is-dir? parent-path check-path]]
             [cetl.utils.u-compress :refer [zip gzip gzip-map zip-map]]
-            [cetl.utils.u-path :refer [command-xform->map]])
+            [cetl.utils.u-path :refer [exec-command->map]])
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
-(def path-coms->map {:file-dir " find `pwd` -maxdepth 1 "
-                     :file " find `pwd` -type f -maxdepth 1 "
-                     :dir " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 "
-                     :dir-sub " find `pwd` -type d "})
+(def command->map {:file-dir " find `pwd` -maxdepth 1 "
+                   :file " find `pwd` -type f -maxdepth 1 "
+                   :dir " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 "
+                   :dir-sub " find `pwd` -type d "})
 
-;;TODO make cetl-list-file->map polymorphic on type of key x so not repeating transducing code
-
-(defn cetl-list-file->map
+(defn cetl-list-file
   ([k]
    (fn [x]
-     {k (transduce
-          (command-xform->map
-            (k path-coms->map)) conj '() x) :exec :cetl-list-file})))
-
-
-#_(defn cetl-list-dir
-  [m]
-  {:out (dir in m) :exec :cetl-list-dir})
-
-#_(defn cetl-list-dir-sub
-  [m]
-  {:out (dir-sub in m) :exec :cetl-list-dir-sub})
+     {k (transduce (exec-command->map (k command->map)) conj '() x) :exec :cetl-list-file})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 #_(defn cetl-zip [f]
   (fn [m]
@@ -203,15 +191,17 @@
           (cetl-create-temp-file {:file file :path path})
           (assoc x :result file-path)))))
 
-(defn -my-rf
+(defn rf
   [rf result]
   (fn
     ([] result) ;resulting collection if any
-    ([x] x) ;return type
+    ([x] x)                                               ;return type
     ([x input] (rf x input)))) ;reducing stepd
 
-(transduce xform (rf str 3) '(1 3 2))
-
-(transduce xform conj '(1 3 2))
+(def xform (map str))
 
 (transduce xform conj '() '(1 3 2))
+
+#_(transduce xform conj '(1 3 2))
+
+#_(transduce xform conj '() '(1 3 2))
