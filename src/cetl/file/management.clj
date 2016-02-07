@@ -2,65 +2,45 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.set :refer [rename-keys]]
-            [cetl.utils.u-file
-             :refer [file-exists? file-name in is-dir?
-                     parent-path check-all-file]]
-            [cetl.utils.u-compress
-             :refer [zip gzip gzip-map zip-map]]
-            [cetl.utils.u-path
-             :refer [dir-path path dir]])
+            [cetl.utils.u-file :refer [file-exists? file-name is-dir? parent-path check-path]]
+            [cetl.utils.u-compress :refer [zip gzip gzip-map zip-map]]
+            [cetl.utils.u-path :refer [exec-command->map]])
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
 (use '[clojure.java.shell :only [sh]])
 
+(def command->map {:file-dir " find `pwd` -maxdepth 1 "
+                   :file " find `pwd` -type f -maxdepth 1 "
+                   :dir " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 "
+                   :dir-sub " find `pwd` -type d "})
+
+(defn cetl-list-file
+  ([k]
+   (fn [x]
+     {k (transduce (exec-command->map (k command->map)) conj '() x) :exec :cetl-list-file})))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defn cetl-zip
+#_(defn cetl-zip [f]
+  (fn [m]
+    (if ((check-path file-exists?) m)
+      (let [path (:path m)]
+        (assoc (empty (f path))
+          :zip-path (map #(str % ".zip") path) :exec :cetl-zip-file)))))
+
+
+#_(defn cetl-gzip
   ([] nil)
   ([m]
-   (if (check-all-file file-exists? in m)
+   (if ((check-file file-exists?) m)
      (let [path (in m)]
-       (zip-map (zip path) path)))))
+       (assoc (empty (gzip path))
+         :out (map #(str % ".tar.gz") path) :exec :cetl-gzip-file)))))
 
 
-(defn cetl-gzip
-  ([] nil)
-  ([m]
-    (if (check-all-file file-exists? in m)
-      (let [path (in m)]
-        (gzip-map (gzip path) path)))))
-
-
-(defn cetl-list-file-dir
-  [m]
-  {:out (dir-path in m) :exec :cetl-list-dirs-files})
-
-
-  (defn cetl-list-file
-    [m]
-    {:out (path in m) :exec :cetl-list-file})
-
-
-(defn cetl-list-dir
-  [m]
-  {:out (dir in m) :exec :cetl-list-dir})
-
-
-  (defn cetl-list-dirs-sub-dirs
-    [x]
-    (if (dir-exists? (str (:path x) "/" (:file x)))
-      (let [file-path (str (:path x) "/" (:file x))]
-        (assoc x
-          :result (s/split
-                    (get (clojure.java.shell/sh
-                           "sh" "-c"
-                           (str " cd " file-path ";"
-                                " find `pwd` -type d ")) :out) #"\n")
-          :exec :list-dirs-sub-dirs))))
-
-
-  (defn cetl-encode-ISO8859-1
+  #_(defn cetl-encode-ISO8859-1
     [x]
     (if (file-exists? x)
       (let [file-path (str (:path x) "/" (:file x))]
@@ -73,7 +53,7 @@
             :exec :encode-ISO8859-1)))))
 
 
-  (defn cetl-encode-UTF-8
+  #_(defn cetl-encode-UTF-8
     [x]
     (if (file-exists? x)
       (let [file (:file x)
@@ -86,7 +66,7 @@
           (assoc x :result file-path
                    :exec :encode-UTF-8)))))
 
-(defn cetl-copy-file
+#_(defn cetl-copy-file
   ([] nil)
   ([x] (cond (nil? x) nil
              (= (count (:path x)) 2)
@@ -101,7 +81,7 @@
                    (assoc x :path (str out-path "/" (file-name in-path)))))))))
 
 
-(defn cetl-delete-file
+#_(defn cetl-delete-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -111,7 +91,7 @@
         (io/delete-file (io/file (str path "/" file)))
         (assoc x :result (str (:path x) "/" (:file x)))))))
 
-(defn cetl-properties-file
+#_(defn cetl-properties-file
   [x]
   (let [file (io/file (str (:path x) "/" (:file x)))
         abs-file-path (.getAbsolutePath file)
@@ -138,7 +118,7 @@
                             :modified-time-millis modified-time-millis
                             :modified-time-str modified-time-str})))))
 
-(defn cetl-compare-file
+#_(defn cetl-compare-file
   [x]
   (let [file-one (:file-one x)
         path-one (:path-one x)
@@ -151,7 +131,7 @@
            (file-exists? (.getAbsolutePath file-path-two)))
       (assoc x :result (FileUtils/contentEquals file-path-one file-path-two)))))
 
-(defn cetl-count-row-file
+#_(defn cetl-count-row-file
   [x]
   (let [file (:file x)
         path (:path x)
@@ -164,7 +144,7 @@
 
 
 
-(defn cetl-gpg-encrypt-file
+#_(defn cetl-gpg-encrypt-file
   [x]
   (if (file-exists? (str (:path x) "/" (:file x)))
     (let [recipient (:recipient x)
@@ -192,8 +172,7 @@
 
 #_(defn cetl-zip-file
     [x]
-    (if (nil? x) nil
-                 (let [path (path-from-map x)
+    (if (nil? x) nil (let [path (path-from-map x)
                        path-obj (map #(io/file %) path)]
                    (do (zip-command path-obj)
                        (assoc x
@@ -211,3 +190,18 @@
         (do
           (cetl-create-temp-file {:file file :path path})
           (assoc x :result file-path)))))
+
+(defn rf
+  [rf result]
+  (fn
+    ([] result) ;resulting collection if any
+    ([x] x)                                               ;return type
+    ([x input] (rf x input)))) ;reducing stepd
+
+(def xform (map str))
+
+(transduce xform conj '() '(1 3 2))
+
+#_(transduce xform conj '(1 3 2))
+
+#_(transduce xform conj '() '(1 3 2))

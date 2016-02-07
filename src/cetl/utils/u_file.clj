@@ -3,20 +3,16 @@
             [clojure.java.io :as io])
   (import [java.io File]))
 
-
-(def throw-exception
-  {:in-no-map-found (IllegalArgumentException. (str "in requires a map of the form {:in ...}"))
-   :in-no-key-found (IllegalArgumentException. (str "in requires :in as key that references input"))})
-
 (defprotocol FileLike
-  (file-name [x] "Returns file name of a given input")
-  (parent-path [x] "Returns the directory name of a given input")
-  (is-file? [x] "Returns file name of a given input")
-  (file-exists? [f] "Returns file name of a given input")
-  (is-dir? [x] "Returns file name of a given input")
-  (canonical-path [x] "Returns the file path of a given input")
-  (abs-file-path [x] "Returns the absolute file path of a given input")
-  (abs-file [x] "Returns the absolute file of a given input"))
+  (file-name [x] "Returns file name of x")
+  (parent-path [x] "Returns the directory name of x")
+  (is-file? [x] "Returns true if x is a file, else false")
+  (file-exists? [f] "Returns true if x exists, else false")
+  (is-dir? [x] "Returns true if x is a directory, else false")
+  (canonical-path [x] "Returns the file path x")
+  (abs-file-path [x] "Returns the absolute file path of x")
+  (abs-file [x] "Returns the absolute file path object of x")
+  (is-hidden? [x] "Returns true if x is a hidden file, else false"))
 
 (extend-protocol
   FileLike
@@ -28,19 +24,20 @@
   (abs-filepath [^File file] (.getAbsolutePath file))
   (abs-file [^File file] (.getAbsoluteFile file))
   (file-exists? [^File file] (.exists file))
-  (canonical-path [^File file] (.getCanonicalPath file)))
+  (canonical-path [^File file] (.getCanonicalPath file))
+  (is-hidden? [^File file] (.isHidden file))
+  String
+  (is-hidden? [^String file] (.isHidden (File. file)))
+  )
 
-
-(defn in
-  [x]
-  (cond (false? (map? x))
-        (IllegalArgumentException.
-          (str "in requires a map of the form {:in ...}"))
-        (= (keys x) '(:in)) (:in x)
-        (= (keys x) '(:out)) (:out x)
-        :else (IllegalArgumentException.
-                (str "in requires :in as key that references input"))))
-
-(defn check-all-file
-  [p? f m] (nil? (some false?
-                  (map #(p? (io/file %)) (f m)))))
+(defn check-path
+  [f?]
+  (fn [m]
+    (nil? (some false?
+                (map #(f? (io/file %))
+                     (cond (false? (map? m))
+                           (IllegalArgumentException.
+                             (str "in requires a map of the form {:in ...}"))
+                           (= (keys m) '(:path)) (:path m)
+                           :else (IllegalArgumentException.
+                                   (str "in requires :in as key that references input"))))))))
