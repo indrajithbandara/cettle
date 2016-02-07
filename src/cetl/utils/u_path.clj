@@ -1,6 +1,6 @@
 (ns cetl.utils.u-path
-  (:require [clojure.string :as s]))
-
+  (:require [clojure.string :as s]
+            [clojure.contrib.shell :refer parse-args ]))
 
 (defn exec-command->map
   [p]

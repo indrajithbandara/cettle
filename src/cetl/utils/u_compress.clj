@@ -10,6 +10,14 @@
                     "sh" "-c"
                     (str " cd " (parent-path (io/file s)) ";" " zip " (file-name (io/file s)) ".zip" " -r " (file-name (io/file s))))) l)))
 
+(defn zip
+  [s]
+  (clojure.java.shell/sh
+    "sh" "-c"
+    (str " cd " (parent-path (io/file s)) ";"
+         " zip " (file-name (io/file s)) ".zip"
+         " -r " (file-name (io/file s)))))
+
 (defn gzip
    [l] (into {} (map (fn [s]
                        (clojure.java.shell/sh

@@ -8,22 +8,24 @@
   (:import (java.io File LineNumberReader)
            (org.apache.commons.io FileUtils)
            (java.text SimpleDateFormat)))
-(use '[clojure.java.shell :only [sh]])
+(use '[clojure.java.shell :only [sh]]
+     'com.rpl.specter)
 
 (def command->map {:file-dir " find `pwd` -maxdepth 1 "
                    :file " find `pwd` -type f -maxdepth 1 "
                    :dir " find `pwd` -type d -not -path '*/\\.*' -maxdepth 1 "
                    :dir-sub " find `pwd` -type d "})
 
-(defn cetl-list-file
+(defn cetl-path
   ([k]
    (fn [x]
-     {k (transduce (exec-command->map (k command->map)) conj '() x) :exec :cetl-list-file})))
+     {:path (transduce (exec-command->map (k command->map)) conj '() x) :exec :cetl-list-file})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(transform [:path ALL ALL string?] zip path)
 
-#_(defn cetl-zip [f]
+(defn cetl-zip [f]
   (fn [m]
     (if ((check-path file-exists?) m)
       (let [path (:path m)]
