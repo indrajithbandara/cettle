@@ -1,18 +1,30 @@
-(ns cetl.utils.u-compress
+(ns cetl.shell.command.archive
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
-            [cetl.utils.u-file :refer [parent-path file-name]]))
+            [cetl.utils.file :refer [parent-path file-name]]))
 
-(defn zip
+
+(defrecord CompressionFormat [zip gzip])
+
+(defn compress-command
+  [f]
+  (CompressionFormat. (str " zip " f ".zip -r " f)
+                      (str " tar -cvzf " f ".tar.gz " f)))
+
+#_(defn zip
   [l]
   (into {} (map (fn [s]
-                  (clojure.java.shell/sh
+                  (exec
                     "sh" "-c"
-                    (str " cd " (parent-path (io/file s)) ";" " zip " (file-name (io/file s)) ".zip" " -r " (file-name (io/file s))))) l)))
+                    (str " cd " (parent-path (io/file s)) ";"
+                         " zip " (file-name (io/file s)) ".zip"
+                         " -r " (file-name (io/file s))))) l)))
+
+(def )
 
 (defn zip
   [s]
-  (clojure.java.shell/sh
+  (exec
     "sh" "-c"
     (str " cd " (parent-path (io/file s)) ";"
          " zip " (file-name (io/file s)) ".zip"
@@ -20,7 +32,7 @@
 
 (defn gzip
    [l] (into {} (map (fn [s]
-                       (clojure.java.shell/sh
+                       (exec
                          "sh" "-c"
                          (str " cd " (parent-path (io/file s)) ";" " tar -cvzf " (file-name (io/file s)) ".tar.gz " (file-name (io/file s))))) l)))
 
@@ -31,3 +43,6 @@
 (defn gzip-map
   [f l]
   (assoc (empty f) :out (map #(str % ".tar.gz") l) :exec :cetl-gzip-file))
+
+
+
