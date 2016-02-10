@@ -1,4 +1,4 @@
-(ns cetl.utils.u-file
+(ns cetl.utils.file
   (:require [clojure.string :as s]
             [clojure.java.io :as io])
   (import [java.io File]))

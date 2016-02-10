@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [cetl.core :refer :all]
             [clojure.java.io :as io]
-            [cetl.file.management :refer :all]
+            [cetl.file.terminal :refer :all]
             [cetl.utils.file-utils :refer [file-exists? dir-exists?]]))
 
 
