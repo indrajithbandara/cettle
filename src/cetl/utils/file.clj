@@ -28,7 +28,8 @@
   (is-hidden? [^File file] (.isHidden file))
   String
   (is-hidden? [^String file] (.isHidden (File. file)))
-  )
+  (file-name [^String file] (.getName (File. file)))
+  (parent-path [^String file] (.getParent (File. file))))
 
 (defn check-path
   [f?]

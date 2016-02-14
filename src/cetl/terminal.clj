@@ -11,6 +11,11 @@
 
 ;todo ammend compress command to allow it to be used as below
 
+
 (transform [ALL]
-           (exec-command (:zip compress-command))
-           ["/Users/gra11" "/Users/gra11/Documents"])
+           (exec-command (:file (compress-command "")))
+           ["/Users/gra11/Pictures" "/Users/gra11/Documents"])
+
+(defn e)
+
+
