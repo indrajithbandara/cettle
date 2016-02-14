@@ -9,13 +9,4 @@
 
 (use 'com.rpl.specter)
 
-;todo ammend compress command to allow it to be used as below
-
-
-(transform [ALL]
-           (exec-command (:file (compress-command "")))
-           ["/Users/gra11/Pictures" "/Users/gra11/Documents"])
-
-(defn e)
-
 

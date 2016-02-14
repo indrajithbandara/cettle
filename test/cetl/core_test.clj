@@ -6,8 +6,5 @@
             [cetl.utils.file-utils :refer [file-exists? dir-exists?]]))
 
 
-(transduce
-  (exec-command->map
-    (:file-dir command->map)) conj '() ["/Users/gra11/Dropbox" "/Users/gra11/Documents"])
-
-
+((cetl-compress (compress-command "file.txt" "data-dump/" "filecopy.txt"))
+  :zip-exc-file ["/Users/gra11/Development"])
