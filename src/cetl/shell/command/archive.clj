@@ -7,13 +7,16 @@
 
 (use 'com.rpl.specter)
 
-(defrecord CompressionFormat [zip gzip])
 
 (defn compress-command
-  [s]
-  (CompressionFormat. (str " zip " s ".zip -r " s)
-                      (str " tar -cvzf " s ".tar.gz " s)))
+  ([s1]
+   {:zip (str " zip " s1".zip -r " s1)
+    :gzip (str " tar -cvzf " s1".tar.gz " s1)})
+  ([s1 s2])
+  ([s1 s2 s3]
+   {:zip-exc-file (str " zip -r " s1".zip " s2 " -x " s2 s3)}))
 
 (defn cetl-compress
-  [k f x]
-  (transform [ALL] (exec-command (k (compress-command f))) x))
+  [cc]
+  (fn [k x]
+    (transform [ALL] (exec-command (k cc)) x)))
