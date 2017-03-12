@@ -7,6 +7,8 @@ public class Vertex {
 
     private String name;
 
+    public Vertex() {}
+
     public Vertex(String name) {
         index = UNKNOWN_INDEX;
         this.name = name;
