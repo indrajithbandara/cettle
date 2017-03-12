@@ -1,11 +1,6 @@
-(defproject cetl "0.1.0-SNAPSHOT"
+(defproject cettle "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [incanter "1.5.6"]
-                 [commons-io/commons-io "2.4"]
-                 [com.rpl/specter "0.9.2"]
-                 [org.clojure/clojure-contrib "1.2.0"]])
+  :dependencies [[org.clojure/clojure "1.8.0"]])

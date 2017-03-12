@@ -1,2 +1,0 @@
-(ns cetl.core)
-
