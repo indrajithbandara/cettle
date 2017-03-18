@@ -1,10 +1,10 @@
-package cettle.java.graph;
+package cettle.java;
 
-import java.util.Iterator;
+import java.util.*;
 
 public class WeightedDistanceMatrix extends DistanceMatrix {
 
-    public double[][] a;
+    public double[][] a; //Todo change to ArrayList
     protected double absentValue;
 
     public WeightedDistanceMatrix(int cardV, boolean directed, double absent) {
@@ -70,6 +70,37 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
     public boolean edgeExists(int u, int v) { return a[u][v] != absentValue; }
     public double getWeight(Vertex u, Vertex v) { return getWeight(u.getIndex(), v.getIndex()); }
     public double getWeight(int u, int v) { return a[u][v]; }
+
+    private static Set<Vertex> uniqueVertices(ArrayList<Vertex> from, ArrayList<Vertex> to){
+        Set<Vertex> uv = new HashSet<Vertex>();
+        uv.addAll(from);
+        uv.addAll(to);
+        return uv;
+    }
+
+    private List<Vertex> addVertices(Set<String> vertices) {
+        Iterator iter = vertices.iterator();
+        Vertex v = new Vertex();
+        List<Vertex> vs = new ArrayList<>(vertices.size());
+        while (iter.hasNext()) {
+            v.setName((String) iter.next());
+            vs.add(v);
+        }
+        return vs;
+    }
+
+    public static double[][] build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, boolean isDir, double nonEdge, int numVerts) {
+        int numEdges = (from.size() + to.size()) / 2;
+        Set<Vertex> uv = uniqueVertices(from, to);
+        WeightedDistanceMatrix wdm = new WeightedDistanceMatrix(numVerts, isDir, nonEdge);
+        for (Vertex v : uv) {
+            wdm.addVertex(v);
+        }
+        for(int index=0; index<numEdges; index++) {
+            wdm.addEdge(from.get(index), to.get(index), weight.get(index));
+        }
+        return wdm.a;
+    }
 
     public String toString() {
         String result = "";

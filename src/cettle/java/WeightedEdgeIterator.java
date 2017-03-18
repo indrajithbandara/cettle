@@ -1,4 +1,4 @@
-package cettle.java.graph;
+package cettle.java;
 
 import java.util.Iterator;
 

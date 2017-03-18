@@ -1,4 +1,4 @@
-package cettle.java.graph;
+package cettle.java;
 
 public class Vertex {
     public static final int UNKNOWN_INDEX = -1;
