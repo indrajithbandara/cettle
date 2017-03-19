@@ -101,9 +101,9 @@ public class DistanceMatrix {
 
     public int getCardV() { return vertices.length; }
     public int getCardE() { return e; }
-    public boolean isDirected() { return directed; }
-    public boolean edgeExists(Vertex u, Vertex v) { return edgeExists(u.getIndex(), v.getIndex()); }
-    public boolean edgeExists(int u, int v) { return a[u][v]; }
+    public Boolean isDirected() { return directed; }
+    public Boolean edgeExists(Vertex u, Vertex v) { return edgeExists(u.getIndex(), v.getIndex()); }
+    public Boolean edgeExists(int u, int v) { return a[u][v]; }
 
     public String toString() {
         String result = "";

@@ -4,10 +4,10 @@ import java.util.*;
 
 public class WeightedDistanceMatrix extends DistanceMatrix {
 
-    protected double absentValue;
+    protected Double absentValue;
     List<List<Double>> a;
 
-    public WeightedDistanceMatrix(int cardV, boolean directed, double absent) {
+    public WeightedDistanceMatrix(Integer cardV, Boolean directed, Double absent) {
         super(cardV, directed);
         super.a = null;
         absentValue = absent;
@@ -24,9 +24,9 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
     }
 
     public void addEdge(Vertex u, Vertex v) { throw new UnsupportedOperationException(); }
-    public void addEdge(int u, int v) { throw new UnsupportedOperationException(); }
+    public void addEdge(Integer u, Integer v) { throw new UnsupportedOperationException(); }
 
-    public void addEdge(Vertex u, Vertex v, double weight) {
+    public void addEdge(Vertex u, Vertex v, Double weight) {
         int uIndex = u.getIndex();
         int vIndex = v.getIndex();
         a.get(uIndex).set(vIndex, weight);
@@ -34,22 +34,22 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
             a.get(vIndex).set(uIndex, weight);
     }
 
-    public void addEdge(int u, int v, double weight) {
+    public void addEdge(Integer u, Integer v, double weight) {
         a.get(u).set(v, weight);
         if (!directed)
             a.get(v).set(u, weight);
     }
 
     public Iterator edgeIterator(Vertex u) { return new EdgeIterator(u.getIndex()); }
-    public Iterator edgeIterator(int u) { return new EdgeIterator(u); }
+    public Iterator edgeIterator(Integer u) { return new EdgeIterator(u); }
 
     public WeightedEdgeIterator weightedEdgeIterator(Vertex u) { return weightedEdgeIterator(u.getIndex()); }
 
-    public WeightedEdgeIterator weightedEdgeIterator(int u) { return new EdgeIterator(u); }
+    public WeightedEdgeIterator weightedEdgeIterator(Integer u) { return new EdgeIterator(u); }
 
     public class EdgeIterator extends DistanceMatrix.EdgeIterator implements WeightedEdgeIterator {
 
-        public EdgeIterator(int v) { super(v); }
+        public EdgeIterator(Integer v) { super(v); }
 
         public boolean hasNext() {
             int v = current + 1;
@@ -65,14 +65,14 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
             return vertices[current];
         }
 
-        public double getWeight() { return a.get(u).get(current); }
+        public Double getWeight() { return a.get(u).get(current); }
         public void setWeight(double weight) { a.get(u).set(current, weight); }
     }
 
-    public boolean edgeExists(Vertex u, Vertex v) { return edgeExists(u.getIndex(), v.getIndex()); }
-    public boolean edgeExists(int u, int v) { return a.get(u).get(v) != absentValue; }
-    public double getWeight(Vertex u, Vertex v) { return getWeight(u.getIndex(), v.getIndex()); }
-    public double getWeight(int u, int v) { return a.get(u).get(v); }
+    public Boolean edgeExists(Vertex u, Vertex v) { return edgeExists(u.getIndex(), v.getIndex()); }
+    public Boolean edgeExists(Integer u, Integer v) { return !a.get(u).get(v).equals(absentValue); }
+    public Double getWeight(Vertex u, Vertex v) { return getWeight(u.getIndex(), v.getIndex()); }
+    public Double getWeight(Integer u, Integer v) { return a.get(u).get(v); }
 
     private static Set<Vertex> uniqueVertices(ArrayList<Vertex> from, ArrayList<Vertex> to){
         Set<Vertex> uv = new HashSet<Vertex>();
@@ -92,7 +92,7 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
         return vs;
     }
 
-    public static List<List<Double>> build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, boolean isDir, double nonEdge, int numVerts) {
+    public static List<List<Double>> build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, Boolean isDir, Double nonEdge, int numVerts) {
         int numEdges = (from.size() + to.size()) / 2;
         Set<Vertex> uv = uniqueVertices(from, to);
         WeightedDistanceMatrix wdm = new WeightedDistanceMatrix(numVerts, isDir, nonEdge);
@@ -103,6 +103,8 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
             wdm.addEdge(from.get(index), to.get(index), weight.get(index));
         }
         return wdm.a;
+
+        // A -> B A -> C B -> D
     }
 
     public String toString() {

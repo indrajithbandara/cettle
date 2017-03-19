@@ -22,12 +22,17 @@ public class Core {
         wamg.addVertex(c);
         wamg.addVertex(d);
 
-        wamg.addEdge(a, b, 22);
-        wamg.addEdge(c, b, 55);
-        wamg.addEdge(c, a, 11);
-        wamg.addEdge(a, d, 9);
+        //wamg.addEdge(a, b, 22);
+        //wamg.addEdge(c, b, 55);
+        //wamg.addEdge(c, a, 11);
+        //wamg.addEdge(a, d, 9);
 
 
         System.out.println(wamg.a);
+        //  A     B    C      D
+        //[[0.0, 22.0, 11.0, 9.0],
+        // [22.0, 0.0, 55.0, 0.0],
+        // [11.0, 55.0, 0.0, 0.0],
+        // [9.0, 0.0, 0.0, 0.0]]
     }
 }
