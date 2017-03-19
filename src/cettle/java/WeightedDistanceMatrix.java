@@ -4,17 +4,23 @@ import java.util.*;
 
 public class WeightedDistanceMatrix extends DistanceMatrix {
 
-    public double[][] a; //Todo change to ArrayList
     protected double absentValue;
+    List<List<Double>> a;
 
     public WeightedDistanceMatrix(int cardV, boolean directed, double absent) {
         super(cardV, directed);
         super.a = null;
         absentValue = absent;
-        a = new double[cardV][cardV];
-        for (int i = 0; i < cardV; i++)
-            for (int j = 0; j < cardV; j++)
-                a[i][j] = absent;
+        a = new ArrayList<List<Double>>(cardV);
+//        for(int i = 0; i < cardV; i++) {
+//          a.add(new ArrayList<Double>());
+//        }
+        for (int i = 0; i < cardV; i++) {
+            a.add(i, new ArrayList<Double>());
+            for (int j = 0; j < cardV; j++) {
+                a.get(i).add(absent);
+            }
+        }
     }
 
     public void addEdge(Vertex u, Vertex v) { throw new UnsupportedOperationException(); }
@@ -23,15 +29,15 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
     public void addEdge(Vertex u, Vertex v, double weight) {
         int uIndex = u.getIndex();
         int vIndex = v.getIndex();
-        a[uIndex][vIndex] = weight;
+        a.get(uIndex).set(vIndex, weight);
         if (!directed)
-            a[vIndex][uIndex] = weight;
+            a.get(vIndex).set(uIndex, weight);
     }
 
     public void addEdge(int u, int v, double weight) {
-        a[u][v] = weight;
+        a.get(u).set(v, weight);
         if (!directed)
-            a[v][u] = weight;
+            a.get(v).set(u, weight);
     }
 
     public Iterator edgeIterator(Vertex u) { return new EdgeIterator(u.getIndex()); }
@@ -47,29 +53,26 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
 
         public boolean hasNext() {
             int v = current + 1;
-            while (v < a[u].length && a[u][v] == absentValue)
+            while (v < a.get(u).size() && a.get(u).get(v) == absentValue)
                 v++;
-            return v < a[u].length;
+            return v < a.get(u).size();
         }
 
         public Object next() {
             current++;
-            while (a[u][current] == absentValue )
+            while (a.get(u).get(current) == absentValue)
                 current++;
             return vertices[current];
         }
 
-        public double getWeight() { return a[u][current]; }
-        public void setWeight(double weight)
-        {
-            a[u][current] = weight;
-        }
+        public double getWeight() { return a.get(u).get(current); }
+        public void setWeight(double weight) { a.get(u).set(current, weight); }
     }
 
     public boolean edgeExists(Vertex u, Vertex v) { return edgeExists(u.getIndex(), v.getIndex()); }
-    public boolean edgeExists(int u, int v) { return a[u][v] != absentValue; }
+    public boolean edgeExists(int u, int v) { return a.get(u).get(v) != absentValue; }
     public double getWeight(Vertex u, Vertex v) { return getWeight(u.getIndex(), v.getIndex()); }
-    public double getWeight(int u, int v) { return a[u][v]; }
+    public double getWeight(int u, int v) { return a.get(u).get(v); }
 
     private static Set<Vertex> uniqueVertices(ArrayList<Vertex> from, ArrayList<Vertex> to){
         Set<Vertex> uv = new HashSet<Vertex>();
@@ -89,7 +92,7 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
         return vs;
     }
 
-    public static double[][] build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, boolean isDir, double nonEdge, int numVerts) {
+    public static List<List<Double>> build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, boolean isDir, double nonEdge, int numVerts) {
         int numEdges = (from.size() + to.size()) / 2;
         Set<Vertex> uv = uniqueVertices(from, to);
         WeightedDistanceMatrix wdm = new WeightedDistanceMatrix(numVerts, isDir, nonEdge);
