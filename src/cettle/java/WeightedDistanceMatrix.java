@@ -5,7 +5,7 @@ import java.util.*;
 public class WeightedDistanceMatrix extends DistanceMatrix {
 
     protected Double absentValue;
-    private List<List<Double>> a;
+    public List<List<Double>> a;
 
     public WeightedDistanceMatrix(Integer cardV, Boolean directed, Double absent) {
         super(cardV, directed);
@@ -87,7 +87,7 @@ public class WeightedDistanceMatrix extends DistanceMatrix {
         return vs;
     }
 
-    //Change from Vertex to strings
+    //Change from Vertex to strings (immutable)
     public static List<List<Double>> build (ArrayList<Vertex> from, ArrayList<Vertex> to, ArrayList<Double> weight, Boolean isDir, Double nonEdge, int numVerts) {
         int numEdges = (from.size() + to.size()) / 2;
         Set<Vertex> uv = uniqueVertices(from, to);
