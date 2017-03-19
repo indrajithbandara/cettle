@@ -9,18 +9,18 @@ public class Core {
 
     public static void main(String[] args) {
 
-        WeightedDistanceMatrix wamg = new WeightedDistanceMatrix(4, false, 0.0);
+        //WeightedDistanceMatrix wamg = new WeightedDistanceMatrix(4, false, 0.0);
 
-        Vertex a = new Vertex("A");
-        Vertex b = new Vertex("B");
-        Vertex c = new Vertex("C");
-        Vertex d = new Vertex("D");
+        //Vertex a = new Vertex("A");
+        //Vertex b = new Vertex("B");
+        //Vertex c = new Vertex("C");
+        //Vertex d = new Vertex("D");
 
 
-        wamg.addVertex(a);
-        wamg.addVertex(b);
-        wamg.addVertex(c);
-        wamg.addVertex(d);
+        //wamg.addVertex(a);
+        //wamg.addVertex(b);
+        //wamg.addVertex(c);
+        //wamg.addVertex(d);
 
         //wamg.addEdge(a, b, 22);
         //wamg.addEdge(c, b, 55);
@@ -28,7 +28,7 @@ public class Core {
         //wamg.addEdge(a, d, 9);
 
 
-        System.out.println(wamg.a);
+       // System.out.println(wamg.a);
         //  A     B    C      D
         //[[0.0, 22.0, 11.0, 9.0],
         // [22.0, 0.0, 55.0, 0.0],
