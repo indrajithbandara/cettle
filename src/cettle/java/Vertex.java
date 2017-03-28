@@ -2,9 +2,7 @@ package cettle.java;
 
 public class Vertex {
     public static final int UNKNOWN_INDEX = -1;
-
     private int index;
-
     private String name;
 
     public Vertex() {}
